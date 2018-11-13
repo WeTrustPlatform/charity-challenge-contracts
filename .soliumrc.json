@@ -1,0 +1,17 @@
+{
+  "extends": "solium:recommended",
+  "plugins": [
+  ],
+  "rules": {
+    "visibility-first": [
+      "off"
+    ],
+    "quotes": [
+      "error",
+      "double"
+    ],
+    "indentation": [
+      "error"
+    ]
+  }
+}
