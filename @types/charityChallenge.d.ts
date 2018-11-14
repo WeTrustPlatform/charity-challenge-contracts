@@ -18,4 +18,8 @@ export interface CharityChallenge {
   finalize(options?: TransactionOptions): Promise<void>;
 
   hasFinalizeCalled(): Promise<boolean>;
+
+  hasChallengeAccomplished(): Promise<boolean>;
+
+  claim(options?: TransactionOptions): Promise<void>;
 }

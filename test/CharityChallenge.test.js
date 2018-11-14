@@ -55,6 +55,10 @@ contract('CharityChallenge', (accounts) => {
     assert.isFalse(await charityChallengeContract.hasFinalizeCalled())
   })
 
+  it('should set hasChallengeAccomplished to false once contract is deployed', async () => {
+    assert.isFalse(await charityChallengeContract.hasChallengeAccomplished())
+  })
+
   it('should return zero contract balance when no donation has been made', async () => {
     assert.equal(await web3.eth.getBalance(charityChallengeContract.address), 0)
   })
@@ -150,6 +154,21 @@ contract('CharityChallenge', (accounts) => {
 
     // perform test
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
+  })
+
+  it('should throw if DONOR_A call claims before challenge end time', async () => {
+    await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
+  })
+
+  it('should throw if DONOR_A call claims before finalize method is called', async () => {
+    charityChallengeContract = await CharityChallenge.new(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address,
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+
+    await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
 
   it('checkAugur should return an error if the market is not finalized', async () => {
