@@ -4,7 +4,13 @@ contract CharityChallenge {
 
     address public contractOwner;
 
-    constructor(address _contractOwner) public {
+    address public npoAddress;
+
+    string public challengeName;
+
+    constructor(address _contractOwner, address _npoAddress, string _challengeName) public {
         contractOwner = _contractOwner;
+        npoAddress = _npoAddress;
+        challengeName = _challengeName;
     }
 }
