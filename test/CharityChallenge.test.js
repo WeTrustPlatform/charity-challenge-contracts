@@ -2,20 +2,23 @@
 
 const assert = require('chai').assert
 const CharityChallenge = artifacts.require('CharityChallenge.sol')
+const MarketMock = artifacts.require('MarketMock.sol')
 
 contract('CharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
-  const MARKET_ADDRESS = accounts[3]
   const VITALIK_WEARS_SUIT_CHALLENGE = 'Vitalik wearing suits on new year\'s eve'
 
   let charityChallengeContract
+  let marketMock
 
   beforeEach(async () => {
+    marketMock = await MarketMock.new(false)
+
     charityChallengeContract = await CharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      MARKET_ADDRESS,
+      marketMock.address,
       VITALIK_WEARS_SUIT_CHALLENGE)
   })
 
@@ -28,10 +31,14 @@ contract('CharityChallenge', (accounts) => {
   })
 
   it('should set Market address via constructor', async () => {
-    assert.equal(await charityChallengeContract.marketAddress(), MARKET_ADDRESS)
+    assert.equal(await charityChallengeContract.marketAddress(), marketMock.address)
   })
 
   it('should set challenge name via constructor', async () => {
     assert.equal(await charityChallengeContract.challengeName(), VITALIK_WEARS_SUIT_CHALLENGE)
+  })
+
+  it('checkAugur should return an error if the market is not finalized', async () => {
+    assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
   })
 })
