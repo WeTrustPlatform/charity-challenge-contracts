@@ -10,4 +10,6 @@ export interface CharityChallenge {
   checkAugur(): Promise<boolean[]>;
 
   balanceOf(address: string): Promise<string>;
+
+  challengeEndTime(): Promise<number>;
 }

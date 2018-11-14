@@ -9,6 +9,8 @@ contract('CharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
   const VITALIK_WEARS_SUIT_CHALLENGE = 'Vitalik wearing suits on new year\'s eve'
+  const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
+  const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
 
   const DONOR_A = accounts[3]
   const DONOR_B = accounts[4]
@@ -23,7 +25,8 @@ contract('CharityChallenge', (accounts) => {
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
   })
 
   it('should set contract owner via constructor', async () => {
@@ -40,6 +43,12 @@ contract('CharityChallenge', (accounts) => {
 
   it('should set challenge name via constructor', async () => {
     assert.equal(await charityChallengeContract.challengeName(), VITALIK_WEARS_SUIT_CHALLENGE)
+  })
+
+  it('should set challenge end time via constructor', async () => {
+    assert.equal(
+      await charityChallengeContract.challengeEndTime(),
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
   })
 
   it('should return zero contract balance when no donation has been made', async () => {
@@ -107,6 +116,19 @@ contract('CharityChallenge', (accounts) => {
     )
 
     assert.equal(result.logs[0].event, 'Received')
+  })
+
+  it('should throw if DONOR_A sends money into contract after challenge end time', async () => {
+    charityChallengeContract = await CharityChallenge.new(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address,
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+
+    await utils.assertRevert(charityChallengeContract.sendTransaction(
+      { value: web3.toWei('1', 'ether'), from: DONOR_A }
+    ))
   })
 
   it('checkAugur should return an error if the market is not finalized', async () => {
