@@ -18,6 +18,8 @@ contract CharityChallenge {
 
     uint256 public challengeEndTime;
 
+    bool public hasFinalizeCalled;
+
     mapping(address => uint256) public donorBalances;
 
     constructor(
@@ -34,10 +36,11 @@ contract CharityChallenge {
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
         challengeEndTime = _challengeEndTime;
+        hasFinalizeCalled = false;
     }
 
     function() public payable {
-        require(now < challengeEndTime);
+        require(now <= challengeEndTime);
         require(msg.value > 0);
         donorBalances[msg.sender] += msg.value;
         emit Received(msg.sender, msg.value);
@@ -45,6 +48,19 @@ contract CharityChallenge {
 
     function balanceOf(address _donorAddress) public view returns (uint256) {
         return donorBalances[_donorAddress];
+    }
+
+    function finalize() external {
+        require(now > challengeEndTime);
+        require(!hasFinalizeCalled);
+
+        (bool hasEventHappened,) = checkAugur();
+        if (hasEventHappened) {
+            npoAddress.transfer(address(this).balance);
+        } else {
+            // loop each result to set claim status
+        }
+        hasFinalizeCalled = true;
     }
 
     function checkAugur() public view returns (bool happened, bool errored) {
