@@ -22,4 +22,6 @@ interface Contract<T> {
 
 interface Artifacts {
   require(name: 'CharityChallenge.sol'): Contract<SpringNFTContract>;
+
+  require(name: 'MarketMock.sol'): Contract<MarketMock>;
 }
