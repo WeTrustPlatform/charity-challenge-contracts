@@ -307,27 +307,27 @@ contract('CharityChallenge', (accounts) => {
   })
 
   it('should return an error if the market is not finalized', async () => {
-    marketMock.setFinalized(false)
+    await marketMock.setFinalized(false)
     assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
   })
 
   it('should return an error if the market is not finalized', async () => {
-    marketMock.setFinalized(true)
-    marketMock.setInvalid(true)
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(true)
     assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
   })
 
   it('should return true if the market outcome is yes', async () => {
-    marketMock.setFinalized(true)
-    marketMock.setInvalid(false)
-    marketMock.setPayoutNumerators([0, 10000])
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(false)
+    await marketMock.setPayoutNumerators([0, 10000])
     assert.deepEqual(await charityChallengeContract.checkAugur(), [true, false])
   })
 
   it('should return false if the market outcome is no', async () => {
-    marketMock.setFinalized(true)
-    marketMock.setInvalid(false)
-    marketMock.setPayoutNumerators([10000, 0])
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(false)
+    await marketMock.setPayoutNumerators([10000, 0])
     assert.deepEqual(await charityChallengeContract.checkAugur(), [false, false])
   })
 })
