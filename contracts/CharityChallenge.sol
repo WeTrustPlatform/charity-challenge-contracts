@@ -10,6 +10,8 @@ contract CharityChallenge {
 
     event Claimed(address indexed claimer, uint256 value);
 
+    event SafetyHatchClaimed(address indexed claimer, uint256 value);
+
     address public contractOwner;
 
     address public npoAddress;
@@ -24,11 +26,15 @@ contract CharityChallenge {
 
     uint256 public challengeSafetyHatchTime1;
 
+    uint256 public challengeSafetyHatchTime2;
+
     bool public hasFinalizeCalled;
 
     bool public hasChallengeAccomplished;
 
     mapping(address => uint256) public donorBalances;
+
+    address[] private donors;
 
     constructor(
         address _contractOwner,
@@ -45,6 +51,7 @@ contract CharityChallenge {
         market = IMarket(_marketAddress);
         challengeEndTime = _challengeEndTime;
         challengeSafetyHatchTime1 = challengeEndTime + 30 days;
+        challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 30 days;
         hasFinalizeCalled = false;
         hasChallengeAccomplished = false;
     }
@@ -53,6 +60,9 @@ contract CharityChallenge {
         require(now <= challengeEndTime);
         require(msg.value > 0);
 
+        if (balanceOf(msg.sender) == 0) {
+            donors.push(msg.sender);
+        }
         donorBalances[msg.sender] += msg.value;
         emit Received(msg.sender, msg.value);
     }
@@ -80,11 +90,25 @@ contract CharityChallenge {
         require(now > challengeEndTime);
         require(hasFinalizeCalled || now > challengeSafetyHatchTime1);
         require(!hasChallengeAccomplished || now > challengeSafetyHatchTime1);
-        require(donorBalances[msg.sender] > 0);
+        require(now <= challengeSafetyHatchTime2);
+        require(balanceOf(msg.sender) > 0);
 
-        msg.sender.transfer(donorBalances[msg.sender]);
+        uint256 claimedAmount = balanceOf(msg.sender);
+        msg.sender.transfer(claimedAmount);
         donorBalances[msg.sender] = 0;
-        emit Claimed(msg.sender, donorBalances[msg.sender]);
+        emit Claimed(msg.sender, claimedAmount);
+    }
+
+    function safetyHatchClaim() external {
+        require(now > challengeSafetyHatchTime2);
+        require(msg.sender == contractOwner);
+
+        uint totalContractBalance = address(this).balance;
+        contractOwner.transfer(address(this).balance);
+        for (uint256 i = 0; i < donors.length; i++) {
+            donorBalances[donors[i]] = 0;
+        }
+        emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
     // TODO: remove this method, visible for testing
@@ -103,6 +127,12 @@ contract CharityChallenge {
     function setChallengeSafetyHatchTime1(uint256 _challengeSafetyHatchTime1) public {
         require(msg.sender == contractOwner);
         challengeSafetyHatchTime1 = _challengeSafetyHatchTime1;
+    }
+
+    // TODO: remove this method, visible for testing
+    function setChallengeSafetyHatchTime2(uint256 _challengeSafetyHatchTime2) public {
+        require(msg.sender == contractOwner);
+        challengeSafetyHatchTime2 = _challengeSafetyHatchTime2;
     }
 
     // TODO: Implement this method

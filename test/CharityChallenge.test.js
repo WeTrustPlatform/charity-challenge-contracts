@@ -12,9 +12,11 @@ contract('CharityChallenge', (accounts) => {
   const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
   const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
   const CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
+  const CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
 
   const DONOR_A = accounts[3]
   const DONOR_B = accounts[4]
+  const DONOR_C = accounts[5]
 
   let charityChallengeContract
   let marketMock
@@ -251,6 +253,160 @@ contract('CharityChallenge', (accounts) => {
       assert.equal(
         parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
         parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
+    })
+
+  // TODO: remove this test
+  it(
+    'should throw if DONOR_A to claim 5 ETH after safety hatch 2 time',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+      await charityChallengeContract.setChallengeEndTime(
+        CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime1(
+        CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime2(
+        CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      // perform test
+      await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
+    })
+
+  // TODO: remove this test
+  it('should allow contract owner to claim total contract balance of 5 ETH', async () => {
+    const CONTRACT_OWNER_INITIAL_BALANCE = web3.eth.getBalance(CONTRACT_OWNER)
+    charityChallengeContract = await CharityChallenge.new(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address,
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
+    await charityChallengeContract.sendTransaction(
+      { value: web3.toWei('2', 'ether'), from: DONOR_A })
+    await charityChallengeContract.sendTransaction(
+      { value: web3.toWei('3', 'ether'), from: DONOR_B })
+    await charityChallengeContract.setChallengeSafetyHatchTime1(
+      CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+    await charityChallengeContract.setChallengeSafetyHatchTime2(
+      CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    // perform test
+    await charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER })
+
+    // test verification
+    const safetyHatchClaimAmount =
+      parseInt(
+        web3.fromWei(web3.eth.getBalance(CONTRACT_OWNER), 'ether')) -
+      parseInt(
+        web3.fromWei(CONTRACT_OWNER_INITIAL_BALANCE, 'ether'))
+    assert.equal(safetyHatchClaimAmount, 5)
+  })
+
+  // TODO: remove this test
+  it(
+    'should return zero balance of DONOR_A, DONOR_B, DONOR_C in the contract when contract owner calls safety hatch claim after safety hatch 2',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+      await charityChallengeContract.setChallengeSafetyHatchTime1(
+        CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime2(
+        CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      // perform test
+      await charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER })
+
+      // test verification
+      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A), 'ether'), '0')
+      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_B), 'ether'), '0')
+      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_C), 'ether'), '0')
+      assert.equal(
+        web3.fromWei(web3.eth.getBalance(charityChallengeContract.address), 'ether'),
+        '0')
+    })
+
+  // TODO: remove this test
+  it(
+    'should emit SafetyHatchClaimed event when contract owner claims total contract balance after safety hatch time 2',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+      await charityChallengeContract.setChallengeSafetyHatchTime1(
+        CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime2(
+        CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      // perform test
+      const result = await charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER })
+
+      // test verification
+      assert.equal(result.logs[0].event, 'SafetyHatchClaimed')
+    })
+
+  it(
+    'should throw if it is not the contract owner who calls safety hatch claim after safety hatch time 2',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+      await charityChallengeContract.setChallengeSafetyHatchTime1(
+        CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime2(
+        CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      // perform test
+      await utils.assertRevert(charityChallengeContract.safetyHatchClaim({ from: DONOR_A }))
+    })
+
+  it(
+    'should throw if contract owner calls safety hatch claim before safety hatch time 2',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+      await charityChallengeContract.setChallengeEndTime(
+        CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime1(
+        CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      // perform test
+      await utils.assertRevert(charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER }))
     })
 
   // TODO: Remove this test
