@@ -25,3 +25,9 @@ interface Artifacts {
 
   require(name: 'MarketMock.sol'): Contract<MarketMock>;
 }
+
+interface Web3 {
+  toWei(amount: string, unit?: string): string;
+
+  fromWei(amount: string, unit?: string): string;
+}

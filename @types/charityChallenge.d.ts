@@ -8,4 +8,6 @@ export interface CharityChallenge {
   marketAddress(): Promise<string>;
 
   checkAugur(): Promise<boolean[]>;
+
+  balanceOf(address: string): Promise<string>;
 }
