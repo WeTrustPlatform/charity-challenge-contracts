@@ -258,6 +258,25 @@ contract('CharityChallenge', (accounts) => {
       assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
     })
 
+  // TODO: remove this test
+  it(
+    'should throw if DONOR_A is trying to claim money he has never donated',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+        { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await charityChallengeContract.finalize({ from: DONOR_B })
+
+      // test verification
+      await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
+    })
+
   it('should throw if DONOR_A call claims before challenge end time', async () => {
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
