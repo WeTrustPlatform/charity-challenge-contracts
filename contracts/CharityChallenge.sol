@@ -6,7 +6,9 @@ contract CharityChallenge {
 
     event Received(address indexed sender, uint256 value);
 
-    event Log(bool value); // TODO: to remove
+    event Log(bool value); // TODO: to remove, used for logging value
+
+    event Claimed(address indexed sender, uint256 value);
 
     address public contractOwner;
 
@@ -47,6 +49,7 @@ contract CharityChallenge {
     function() public payable {
         require(now <= challengeEndTime);
         require(msg.value > 0);
+
         donorBalances[msg.sender] += msg.value;
         emit Received(msg.sender, msg.value);
     }
@@ -59,12 +62,10 @@ contract CharityChallenge {
         require(now > challengeEndTime);
         require(!hasFinalizeCalled);
 
-        (hasChallengeAccomplished,) = checkAugur();
+        // TODO: uncomment below line, in reality `hasChallengeAccomplished` is obtained from Augur
+        // (hasChallengeAccomplished,) = checkAugur();
         if (hasChallengeAccomplished) {
-            // TODO: unit test this
             npoAddress.transfer(address(this).balance);
-        } else {
-            // TODO: implement loop each result to set claim status
         }
         hasFinalizeCalled = true;
     }
@@ -73,9 +74,23 @@ contract CharityChallenge {
         require(now > challengeEndTime);
         require(hasFinalizeCalled);
         require(!hasChallengeAccomplished);
+        require(donorBalances[msg.sender] > 0);
 
-        // TODO: unit test this
         msg.sender.transfer(donorBalances[msg.sender]);
+        donorBalances[msg.sender] = 0;
+        emit Claimed(msg.sender, donorBalances[msg.sender]);
+    }
+
+    // TODO: remove this method, visible for testing
+    function setChallengeAccomplished(bool _hasChallengeAccomplished) public {
+        require(msg.sender == contractOwner);
+        hasChallengeAccomplished = _hasChallengeAccomplished;
+    }
+
+    // TODO: remove this method, visible for testing
+    function setChallengeEndTime(uint256 _challengeEndTime) public {
+        require(msg.sender == contractOwner);
+        challengeEndTime = _challengeEndTime;
     }
 
     // TODO: Implement this method
