@@ -54,8 +54,8 @@ contract('CharityChallenge', (accounts) => {
       CHALLENGE_END_TIME_IN_THE_FUTURE)
   })
 
-  it('should set hasFinalizedCalled to false once contract is deployed', async () => {
-    assert.isFalse(await charityChallengeContract.hasFinalizeCalled())
+  it('should set isEventFinalizedAndValid to false once contract is deployed', async () => {
+    assert.isFalse(await charityChallengeContract.isEventFinalizedAndValid())
   })
 
   it('should set hasChallengeAccomplished to false once contract is deployed', async () => {
@@ -146,18 +146,93 @@ contract('CharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_A }))
   })
 
-  it('should throw if finalize is called the second time', async () => {
-    charityChallengeContract = await CharityChallenge.new(
-      CONTRACT_OWNER,
-      RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE,
-      CHALLENGE_END_TIME_IN_THE_PAST)
-    await charityChallengeContract.finalize({ from: DONOR_A })
+  it('should throw if finalize is called the second time after market is finalized and valid',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_PAST)
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([0, 100000])
+      await charityChallengeContract.finalize({ from: DONOR_A })
 
-    // perform test
-    await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
-  })
+      // perform test
+      await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
+    })
+
+  it(
+    'should set challenge accomplished to true if finalize is called the second time after market is finalized and valid',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_PAST)
+      await marketMock.setFinalized(false)
+      await charityChallengeContract.finalize({ from: DONOR_A })
+
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([0, 10000])
+
+      // perform test
+      await charityChallengeContract.finalize({ from: DONOR_A })
+
+      // test verification
+      assert.isTrue(await charityChallengeContract.isEventFinalizedAndValid())
+    })
+
+  it(
+    'should set challenge accomplished to TRUE if finalize is called the second time after market is finalized and valid',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_PAST)
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(true)
+      await charityChallengeContract.finalize({ from: DONOR_A })
+
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([0, 10000])
+
+      // perform test
+      await charityChallengeContract.finalize({ from: DONOR_A })
+
+      // test verification
+      assert.isTrue(await charityChallengeContract.hasChallengeAccomplished())
+    })
+
+  it(
+    'should set challenge accomplished to FALSE if finalize is called the second time after market is finalized and valid',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_PAST)
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(true)
+      await charityChallengeContract.finalize({ from: DONOR_A })
+
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([10000, 0])
+
+      // perform test
+      await charityChallengeContract.finalize({ from: DONOR_A })
+
+      // test verification
+      assert.isFalse(await charityChallengeContract.hasChallengeAccomplished())
+    })
 
   // TODO: Remove this test
   it('should throw if finalize is called after safety hatch 1 time', async () => {
@@ -189,7 +264,9 @@ contract('CharityChallenge', (accounts) => {
       { value: web3.toWei('2', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
-    await charityChallengeContract.setChallengeAccomplished(true, { from: CONTRACT_OWNER })
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(false)
+    await marketMock.setPayoutNumerators([0, 10000])
     await charityChallengeContract.finalize({ from: DONOR_A })
 
     // perform test
@@ -216,7 +293,9 @@ contract('CharityChallenge', (accounts) => {
         { value: web3.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
-      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([10000, 0])
       await charityChallengeContract.finalize({ from: DONOR_B })
 
       // perform test
@@ -423,7 +502,9 @@ contract('CharityChallenge', (accounts) => {
         { value: web3.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
-      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([10000, 0])
       await charityChallengeContract.finalize({ from: DONOR_B })
 
       // perform test
@@ -447,7 +528,9 @@ contract('CharityChallenge', (accounts) => {
         { value: web3.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
-      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([10000, 0])
       await charityChallengeContract.finalize({ from: DONOR_B })
 
       // perform test
@@ -469,7 +552,9 @@ contract('CharityChallenge', (accounts) => {
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
-      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await marketMock.setFinalized(true)
+      await marketMock.setInvalid(false)
+      await marketMock.setPayoutNumerators([10000, 0])
       await charityChallengeContract.finalize({ from: DONOR_B })
 
       // test verification
@@ -499,34 +584,11 @@ contract('CharityChallenge', (accounts) => {
       marketMock.address,
       VITALIK_WEARS_SUIT_CHALLENGE,
       CHALLENGE_END_TIME_IN_THE_PAST)
-    await charityChallengeContract.finalize({ from: DONOR_A })
-    await charityChallengeContract.setChallengeAccomplished(true, { from: CONTRACT_OWNER })
-
-    await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
-  })
-
-  it('should return an error if the market is not finalized', async () => {
-    await marketMock.setFinalized(false)
-    assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
-  })
-
-  it('should return an error if the market is not finalized', async () => {
-    await marketMock.setFinalized(true)
-    await marketMock.setInvalid(true)
-    assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
-  })
-
-  it('should return true if the market outcome is yes', async () => {
     await marketMock.setFinalized(true)
     await marketMock.setInvalid(false)
     await marketMock.setPayoutNumerators([0, 10000])
-    assert.deepEqual(await charityChallengeContract.checkAugur(), [true, false])
-  })
+    await charityChallengeContract.finalize({ from: DONOR_A })
 
-  it('should return false if the market outcome is no', async () => {
-    await marketMock.setFinalized(true)
-    await marketMock.setInvalid(false)
-    await marketMock.setPayoutNumerators([10000, 0])
-    assert.deepEqual(await charityChallengeContract.checkAugur(), [false, false])
+    await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
 })

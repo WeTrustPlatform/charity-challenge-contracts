@@ -28,7 +28,7 @@ contract CharityChallenge {
 
     uint256 public challengeSafetyHatchTime2;
 
-    bool public hasFinalizeCalled;
+    bool public isEventFinalizedAndValid;
 
     bool public hasChallengeAccomplished;
 
@@ -52,7 +52,7 @@ contract CharityChallenge {
         challengeEndTime = _challengeEndTime;
         challengeSafetyHatchTime1 = challengeEndTime + 30 days;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 30 days;
-        hasFinalizeCalled = false;
+        isEventFinalizedAndValid = false;
         hasChallengeAccomplished = false;
     }
 
@@ -74,21 +74,23 @@ contract CharityChallenge {
     function finalize() external {
         require(now > challengeEndTime);
         require(now <= challengeSafetyHatchTime1);
-        require(!hasFinalizeCalled);
+        require(!isEventFinalizedAndValid);
 
-        // TODO: uncomment below line, in reality `hasChallengeAccomplished` is obtained from Augur
-        // (hasChallengeAccomplished,) = checkAugur();
-        if (hasChallengeAccomplished) {
-            uint256 totalContractBalance = address(this).balance;
-            npoAddress.transfer(address(this).balance);
-            emit Donated(npoAddress, totalContractBalance);
+        bool hasError;
+        (hasChallengeAccomplished, hasError) = checkAugur();
+        if (!hasError) {
+            if (hasChallengeAccomplished) {
+                uint256 totalContractBalance = address(this).balance;
+                npoAddress.transfer(address(this).balance);
+                emit Donated(npoAddress, totalContractBalance);
+            }
+            isEventFinalizedAndValid = true;
         }
-        hasFinalizeCalled = true;
     }
 
     function claim() external {
         require(now > challengeEndTime);
-        require(hasFinalizeCalled || now > challengeSafetyHatchTime1);
+        require(isEventFinalizedAndValid || now > challengeSafetyHatchTime1);
         require(!hasChallengeAccomplished || now > challengeSafetyHatchTime1);
         require(now <= challengeSafetyHatchTime2);
         require(balanceOf(msg.sender) > 0);
@@ -111,11 +113,23 @@ contract CharityChallenge {
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
-    // TODO: remove this method, visible for testing
-    function setChallengeAccomplished(bool _hasChallengeAccomplished) public {
-        require(msg.sender == contractOwner);
-        hasChallengeAccomplished = _hasChallengeAccomplished;
+    function checkAugur() private view returns (bool happened, bool errored) {
+        if (market.isFinalized()) {
+            if (market.isInvalid()) {
+                return (false, true);
+            } else {
+                uint256 no = market.getWinningPayoutNumerator(0);
+                uint256 yes = market.getWinningPayoutNumerator(1);
+                return (yes > no, false);
+            }
+        } else {
+            return (false, true);
+        }
     }
+
+    ///////////////////////////////////////////
+    // FUNCTIONS BELOW ARE SUPPORTED TESTING //
+    ///////////////////////////////////////////
 
     // TODO: remove this method, visible for testing
     function setChallengeEndTime(uint256 _challengeEndTime) public {
@@ -133,20 +147,5 @@ contract CharityChallenge {
     function setChallengeSafetyHatchTime2(uint256 _challengeSafetyHatchTime2) public {
         require(msg.sender == contractOwner);
         challengeSafetyHatchTime2 = _challengeSafetyHatchTime2;
-    }
-
-    // TODO: Implement this method
-    function checkAugur() public view returns (bool happened, bool errored) {
-        if (market.isFinalized()) {
-            if (market.isInvalid()) {
-                return (false, true);
-            } else {
-                uint256 no = market.getWinningPayoutNumerator(0);
-                uint256 yes = market.getWinningPayoutNumerator(1);
-                return (yes > no, false);
-            }
-        } else {
-            return (false, true);
-        }
     }
 }
