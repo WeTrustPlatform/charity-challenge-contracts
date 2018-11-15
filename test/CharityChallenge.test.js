@@ -11,6 +11,7 @@ contract('CharityChallenge', (accounts) => {
   const VITALIK_WEARS_SUIT_CHALLENGE = 'Vitalik wearing suits on new year\'s eve'
   const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
   const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
+  const CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
 
   const DONOR_A = accounts[3]
   const DONOR_B = accounts[4]
@@ -156,6 +157,21 @@ contract('CharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
   })
 
+  // TODO: Remove this test
+  it('should throw if finalize is called after safety hatch 1 time', async () => {
+    charityChallengeContract = await CharityChallenge.new(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address,
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+    await charityChallengeContract.setChallengeSafetyHatchTime1(
+      CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    // perform test
+    await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
+  })
+
   // TODO: remove this test
   it('should send money to npo address if challenge accomplished', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
@@ -169,8 +185,8 @@ contract('CharityChallenge', (accounts) => {
       { value: web3.toWei('1', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
       { value: web3.toWei('2', 'ether'), from: DONOR_B })
-    charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
-      { from: CONTRACT_OWNER })
+    await charityChallengeContract.setChallengeEndTime(
+      CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
     await charityChallengeContract.setChallengeAccomplished(true, { from: CONTRACT_OWNER })
     await charityChallengeContract.finalize({ from: DONOR_A })
 
@@ -196,10 +212,37 @@ contract('CharityChallenge', (accounts) => {
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.toWei('5', 'ether'), from: DONOR_A })
-      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
-        { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeEndTime(
+        CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
       await charityChallengeContract.finalize({ from: DONOR_B })
+
+      // perform test
+      await charityChallengeContract.claim({ from: DONOR_A })
+
+      // test verification
+      assert.equal(
+        parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
+        parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
+    })
+
+  // TODO: remove this test
+  it(
+    'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH after safety hatch 1 time even thou finalize has never been called',
+    async () => {
+      const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+      await charityChallengeContract.setChallengeEndTime(
+        CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeSafetyHatchTime1(
+        CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
 
       // perform test
       await charityChallengeContract.claim({ from: DONOR_A })
@@ -222,7 +265,7 @@ contract('CharityChallenge', (accounts) => {
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.toWei('5', 'ether'), from: DONOR_A })
-      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+      await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
       await charityChallengeContract.finalize({ from: DONOR_B })
@@ -246,7 +289,7 @@ contract('CharityChallenge', (accounts) => {
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.toWei('5', 'ether'), from: DONOR_A })
-      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+      await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
       await charityChallengeContract.finalize({ from: DONOR_B })
@@ -268,8 +311,8 @@ contract('CharityChallenge', (accounts) => {
         marketMock.address,
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
-      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
-        { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeEndTime(
+        CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
       await charityChallengeContract.finalize({ from: DONOR_B })
 
