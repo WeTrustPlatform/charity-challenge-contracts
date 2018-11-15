@@ -81,7 +81,13 @@ contract CharityChallenge {
     // TODO: Implement this method
     function checkAugur() public view returns (bool happened, bool errored) {
         if (market.isFinalized()) {
-            // check the result
+            if (market.isInvalid()) {
+                return (false, true);
+            } else {
+                uint256 no = market.getWinningPayoutNumerator(0);
+                uint256 yes = market.getWinningPayoutNumerator(1);
+                return (yes > no, false);
+            }
         } else {
             return (false, true);
         }
