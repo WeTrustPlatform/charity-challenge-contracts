@@ -6,9 +6,9 @@ contract CharityChallenge {
 
     event Received(address indexed sender, uint256 value);
 
-    event Log(bool value); // TODO: to remove, used for logging value
+    event Donated(address indexed npo, uint256 value);
 
-    event Claimed(address indexed sender, uint256 value);
+    event Claimed(address indexed claimer, uint256 value);
 
     address public contractOwner;
 
@@ -65,7 +65,9 @@ contract CharityChallenge {
         // TODO: uncomment below line, in reality `hasChallengeAccomplished` is obtained from Augur
         // (hasChallengeAccomplished,) = checkAugur();
         if (hasChallengeAccomplished) {
+            uint256 totalContractBalance = address(this).balance;
             npoAddress.transfer(address(this).balance);
+            emit Donated(npoAddress, totalContractBalance);
         }
         hasFinalizeCalled = true;
     }
