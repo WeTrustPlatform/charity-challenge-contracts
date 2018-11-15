@@ -8,6 +8,8 @@ contract CharityChallenge {
 
     event Log(bool value); // TODO: to remove, used for logging value
 
+    event Claimed(address indexed sender, uint256 value);
+
     address public contractOwner;
 
     address public npoAddress;
@@ -75,6 +77,8 @@ contract CharityChallenge {
         require(donorBalances[msg.sender] > 0);
 
         msg.sender.transfer(donorBalances[msg.sender]);
+        donorBalances[msg.sender] = 0;
+        emit Claimed(msg.sender, donorBalances[msg.sender]);
     }
 
     // TODO: remove this method, visible for testing

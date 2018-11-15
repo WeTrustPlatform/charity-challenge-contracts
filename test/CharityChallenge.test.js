@@ -210,6 +210,54 @@ contract('CharityChallenge', (accounts) => {
         parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
+  // TODO: Remove this test
+  it(
+    'should emit Claimed event after DONOR_A claims the money',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+        { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await charityChallengeContract.finalize({ from: DONOR_B })
+
+      // perform test
+      const result = await charityChallengeContract.claim({ from: DONOR_A })
+
+      // test verification
+      assert.equal(result.logs[0].event, 'Claimed')
+    })
+
+  // TODO: Remove this test
+  it(
+    'should return balance of DONOR_A as zero after DONOR_A has claimed',
+    async () => {
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+        { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await charityChallengeContract.finalize({ from: DONOR_B })
+
+      // perform test
+      await charityChallengeContract.claim({ from: DONOR_A })
+
+      // test verification
+      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
+    })
+
   it('should throw if DONOR_A call claims before challenge end time', async () => {
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
