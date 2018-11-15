@@ -4,6 +4,8 @@ import "./IMarket.sol";
 
 contract CharityChallenge {
 
+    event Received(address indexed sender, uint256 value);
+
     address public contractOwner;
 
     address public npoAddress;
@@ -13,6 +15,8 @@ contract CharityChallenge {
     IMarket market;
 
     string public challengeName;
+
+    mapping(address => uint256) public donorBalances;
 
     constructor(
         address _contractOwner,
@@ -26,6 +30,16 @@ contract CharityChallenge {
         challengeName = _challengeName;
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
+    }
+
+    function() public payable {
+        require(msg.value > 0);
+        donorBalances[msg.sender] += msg.value;
+        emit Received(msg.sender, msg.value);
+    }
+
+    function balanceOf(address _donorAddress) public view returns (uint256) {
+        return donorBalances[_donorAddress];
     }
 
     function checkAugur() public view returns (bool happened, bool errored) {
