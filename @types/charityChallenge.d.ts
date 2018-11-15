@@ -1,3 +1,5 @@
+import { TransactionOptions } from "./contracts"
+
 export interface CharityChallenge {
   contractOwner(): Promise<string>;
 
@@ -12,4 +14,8 @@ export interface CharityChallenge {
   balanceOf(address: string): Promise<string>;
 
   challengeEndTime(): Promise<number>;
+
+  finalize(options?: TransactionOptions): Promise<void>;
+
+  hasFinalizeCalled(): Promise<boolean>;
 }
