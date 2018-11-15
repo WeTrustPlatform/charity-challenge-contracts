@@ -17,11 +17,17 @@ export interface CharityChallenge {
 
   finalize(options?: TransactionOptions): Promise<void>;
 
-  hasFinalizeCalled(): Promise<boolean>;
+  isEventFinalizedAndValid(): Promise<boolean>;
 
   hasChallengeAccomplished(): Promise<boolean>;
 
   claim(options?: TransactionOptions): Promise<void>;
 
   safetyHatchClaim(options?: TransactionOptions): Promise<void>;
+
+  setChallengeEndTime(challengeEndTime: number, options?: TransactionOptions): Promise<void>;
+
+  setChallengeSafetyHatchTime1(safetyHatchTime1: number, options?: TransactionOptions): Promise<void>;
+
+  setChallengeSafetyHatchTime2(safetyHatchTime2: number, options?: TransactionOptions): Promise<void>;
 }
