@@ -16,13 +16,16 @@ contract CharityChallenge {
 
     string public challengeName;
 
+    uint256 public challengeEndTime;
+
     mapping(address => uint256) public donorBalances;
 
     constructor(
         address _contractOwner,
         address _npoAddress,
         address _marketAddress,
-        string _challengeName
+        string _challengeName,
+        uint256 _challengeEndTime
     ) public
     {
         contractOwner = _contractOwner;
@@ -30,9 +33,11 @@ contract CharityChallenge {
         challengeName = _challengeName;
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
+        challengeEndTime = _challengeEndTime;
     }
 
     function() public payable {
+        require(now < challengeEndTime);
         require(msg.value > 0);
         donorBalances[msg.sender] += msg.value;
         emit Received(msg.sender, msg.value);
