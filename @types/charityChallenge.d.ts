@@ -22,4 +22,6 @@ export interface CharityChallenge {
   hasChallengeAccomplished(): Promise<boolean>;
 
   claim(options?: TransactionOptions): Promise<void>;
+
+  safetyHatchClaim(options?: TransactionOptions): Promise<void>;
 }
