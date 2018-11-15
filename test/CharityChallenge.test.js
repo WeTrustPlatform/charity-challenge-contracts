@@ -156,6 +156,60 @@ contract('CharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
   })
 
+  // TODO: remove this test
+  it('should send money to npo address if challenge accomplished', async () => {
+    const RAINFOREST_NPO_INITIAL_BALANCE = web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
+    charityChallengeContract = await CharityChallenge.new(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address,
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
+    await charityChallengeContract.sendTransaction(
+      { value: web3.toWei('1', 'ether'), from: DONOR_A })
+    await charityChallengeContract.sendTransaction(
+      { value: web3.toWei('2', 'ether'), from: DONOR_B })
+    charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+      { from: CONTRACT_OWNER })
+    await charityChallengeContract.setChallengeAccomplished(true, { from: CONTRACT_OWNER })
+    await charityChallengeContract.finalize({ from: DONOR_A })
+
+    // perform test
+    const donatedAmount =
+      parseInt(
+        web3.fromWei(web3.eth.getBalance(RAINFOREST_NPO_ADDRESS), 'ether')) -
+      parseInt(
+        web3.fromWei(RAINFOREST_NPO_INITIAL_BALANCE, 'ether'))
+    assert.equal(donatedAmount, 3)
+  })
+
+  // TODO: remove this test
+  it(
+    'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH and challenge is not accomplished',
+    async () => {
+      const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
+      charityChallengeContract = await CharityChallenge.new(
+        CONTRACT_OWNER,
+        RAINFOREST_NPO_ADDRESS,
+        marketMock.address,
+        VITALIK_WEARS_SUIT_CHALLENGE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
+      await charityChallengeContract.sendTransaction(
+        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+      charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
+        { from: CONTRACT_OWNER })
+      await charityChallengeContract.setChallengeAccomplished(false, { from: CONTRACT_OWNER })
+      await charityChallengeContract.finalize({ from: DONOR_B })
+
+      // perform test
+      await charityChallengeContract.claim({ from: DONOR_A })
+
+      // test verification
+      assert.equal(
+        parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
+        parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
+    })
+
   it('should throw if DONOR_A call claims before challenge end time', async () => {
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
@@ -167,6 +221,20 @@ contract('CharityChallenge', (accounts) => {
       marketMock.address,
       VITALIK_WEARS_SUIT_CHALLENGE,
       CHALLENGE_END_TIME_IN_THE_PAST)
+
+    await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
+  })
+
+  // TODO: Remove this test
+  it('should throw if DONOR_A call claims when challenge has accomplished', async () => {
+    charityChallengeContract = await CharityChallenge.new(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address,
+      VITALIK_WEARS_SUIT_CHALLENGE,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+    await charityChallengeContract.finalize({ from: DONOR_A })
+    await charityChallengeContract.setChallengeAccomplished(true, { from: CONTRACT_OWNER })
 
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
