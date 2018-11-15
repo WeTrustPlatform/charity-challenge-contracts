@@ -6,6 +6,8 @@ contract CharityChallenge {
 
     event Received(address indexed sender, uint256 value);
 
+    event Log(bool value); // TODO: to remove
+
     address public contractOwner;
 
     address public npoAddress;
@@ -19,6 +21,8 @@ contract CharityChallenge {
     uint256 public challengeEndTime;
 
     bool public hasFinalizeCalled;
+
+    bool public hasChallengeAccomplished;
 
     mapping(address => uint256) public donorBalances;
 
@@ -37,6 +41,7 @@ contract CharityChallenge {
         market = IMarket(_marketAddress);
         challengeEndTime = _challengeEndTime;
         hasFinalizeCalled = false;
+        hasChallengeAccomplished = false;
     }
 
     function() public payable {
@@ -54,15 +59,26 @@ contract CharityChallenge {
         require(now > challengeEndTime);
         require(!hasFinalizeCalled);
 
-        (bool hasEventHappened,) = checkAugur();
-        if (hasEventHappened) {
+        (hasChallengeAccomplished,) = checkAugur();
+        if (hasChallengeAccomplished) {
+            // TODO: unit test this
             npoAddress.transfer(address(this).balance);
         } else {
-            // loop each result to set claim status
+            // TODO: implement loop each result to set claim status
         }
         hasFinalizeCalled = true;
     }
 
+    function claim() external {
+        require(now > challengeEndTime);
+        require(hasFinalizeCalled);
+        require(!hasChallengeAccomplished);
+
+        // TODO: unit test this
+        msg.sender.transfer(donorBalances[msg.sender]);
+    }
+
+    // TODO: Implement this method
     function checkAugur() public view returns (bool happened, bool errored) {
         if (market.isFinalized()) {
             // check the result
