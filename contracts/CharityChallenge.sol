@@ -22,6 +22,8 @@ contract CharityChallenge {
 
     uint256 public challengeEndTime;
 
+    uint256 public challengeSafetyHatchTime1;
+
     bool public hasFinalizeCalled;
 
     bool public hasChallengeAccomplished;
@@ -42,6 +44,7 @@ contract CharityChallenge {
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
         challengeEndTime = _challengeEndTime;
+        challengeSafetyHatchTime1 = challengeEndTime + 30 days;
         hasFinalizeCalled = false;
         hasChallengeAccomplished = false;
     }
@@ -60,6 +63,7 @@ contract CharityChallenge {
 
     function finalize() external {
         require(now > challengeEndTime);
+        require(now <= challengeSafetyHatchTime1);
         require(!hasFinalizeCalled);
 
         // TODO: uncomment below line, in reality `hasChallengeAccomplished` is obtained from Augur
@@ -74,8 +78,8 @@ contract CharityChallenge {
 
     function claim() external {
         require(now > challengeEndTime);
-        require(hasFinalizeCalled);
-        require(!hasChallengeAccomplished);
+        require(hasFinalizeCalled || now > challengeSafetyHatchTime1);
+        require(!hasChallengeAccomplished || now > challengeSafetyHatchTime1);
         require(donorBalances[msg.sender] > 0);
 
         msg.sender.transfer(donorBalances[msg.sender]);
@@ -93,6 +97,12 @@ contract CharityChallenge {
     function setChallengeEndTime(uint256 _challengeEndTime) public {
         require(msg.sender == contractOwner);
         challengeEndTime = _challengeEndTime;
+    }
+
+    // TODO: remove this method, visible for testing
+    function setChallengeSafetyHatchTime1(uint256 _challengeSafetyHatchTime1) public {
+        require(msg.sender == contractOwner);
+        challengeSafetyHatchTime1 = _challengeSafetyHatchTime1;
     }
 
     // TODO: Implement this method
