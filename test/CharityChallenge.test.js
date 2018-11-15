@@ -19,7 +19,7 @@ contract('CharityChallenge', (accounts) => {
   let marketMock
 
   beforeEach(async () => {
-    marketMock = await MarketMock.new(false)
+    marketMock = await MarketMock.new()
 
     charityChallengeContract = await CharityChallenge.new(
       CONTRACT_OWNER,
@@ -171,7 +171,28 @@ contract('CharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
 
-  it('checkAugur should return an error if the market is not finalized', async () => {
+  it('should return an error if the market is not finalized', async () => {
+    marketMock.setFinalized(false)
     assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
+  })
+
+  it('should return an error if the market is not finalized', async () => {
+    marketMock.setFinalized(true)
+    marketMock.setInvalid(true)
+    assert.deepEqual(await charityChallengeContract.checkAugur(), [false, true])
+  })
+
+  it('should return true if the market outcome is yes', async () => {
+    marketMock.setFinalized(true)
+    marketMock.setInvalid(false)
+    marketMock.setPayoutNumerators([0, 10000])
+    assert.deepEqual(await charityChallengeContract.checkAugur(), [true, false])
+  })
+
+  it('should return false if the market outcome is no', async () => {
+    marketMock.setFinalized(true)
+    marketMock.setInvalid(false)
+    marketMock.setPayoutNumerators([10000, 0])
+    assert.deepEqual(await charityChallengeContract.checkAugur(), [false, false])
   })
 })
