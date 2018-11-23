@@ -1,6 +1,6 @@
 import * as Web3 from 'web3'
-import { SpringNFTContract } from 'spring-nft-contract'
-import { ERC165QueryInstance } from "./erc165-query-instance"
+import { CharityChallenge } from "./charityChallenge";
+import { TestableCharityChallenge } from "./testableCharityChallenge";
 
 declare global {
   function contract(name: string, test: ContractTest): void;
@@ -21,7 +21,9 @@ interface Contract<T> {
 }
 
 interface Artifacts {
-  require(name: 'CharityChallenge.sol'): Contract<SpringNFTContract>;
+  require(name: 'CharityChallenge.sol'): Contract<CharityChallenge>;
+
+  require(name: 'TestableCharityChallenge.sol'): Contract<TestableCharityChallenge>
 
   require(name: 'MarketMock.sol'): Contract<MarketMock>;
 }
