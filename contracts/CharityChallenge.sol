@@ -92,7 +92,6 @@ contract CharityChallenge {
         require(now > challengeEndTime);
         require(isEventFinalizedAndValid || now > challengeSafetyHatchTime1);
         require(!hasChallengeAccomplished || now > challengeSafetyHatchTime1);
-        require(now <= challengeSafetyHatchTime2);
         require(balanceOf(msg.sender) > 0);
 
         uint256 claimedAmount = balanceOf(msg.sender);

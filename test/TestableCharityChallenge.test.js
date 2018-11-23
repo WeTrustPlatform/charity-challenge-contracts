@@ -331,8 +331,9 @@ contract('TestableCharityChallenge', (accounts) => {
     })
 
   it(
-    'should throw if DONOR_A to claim 5 ETH after safety hatch 2 time',
+    'should allow DONOR_A to claim 5 ETH after safety hatch 2 time',
     async () => {
+      const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
@@ -349,7 +350,12 @@ contract('TestableCharityChallenge', (accounts) => {
         CHALLENGE_SAFETY_HATCH_2_IN_THE_PAST, { from: CONTRACT_OWNER })
 
       // perform test
-      await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
+      await charityChallengeContract.claim({ from: DONOR_A })
+
+      // test verification
+      assert.equal(
+        parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
+        parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
   it('should allow contract owner to claim total contract balance of 5 ETH', async () => {
