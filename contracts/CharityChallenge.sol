@@ -126,26 +126,4 @@ contract CharityChallenge {
             return (false, true);
         }
     }
-
-    ///////////////////////////////////////////
-    // FUNCTIONS BELOW ARE SUPPORTED TESTING //
-    ///////////////////////////////////////////
-
-    // TODO: remove this method, visible for testing
-    function setChallengeEndTime(uint256 _challengeEndTime) public {
-        require(msg.sender == contractOwner);
-        challengeEndTime = _challengeEndTime;
-    }
-
-    // TODO: remove this method, visible for testing
-    function setChallengeSafetyHatchTime1(uint256 _challengeSafetyHatchTime1) public {
-        require(msg.sender == contractOwner);
-        challengeSafetyHatchTime1 = _challengeSafetyHatchTime1;
-    }
-
-    // TODO: remove this method, visible for testing
-    function setChallengeSafetyHatchTime2(uint256 _challengeSafetyHatchTime2) public {
-        require(msg.sender == contractOwner);
-        challengeSafetyHatchTime2 = _challengeSafetyHatchTime2;
-    }
 }

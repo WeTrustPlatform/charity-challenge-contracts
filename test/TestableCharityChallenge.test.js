@@ -1,11 +1,11 @@
 'use strict'
 
 const assert = require('chai').assert
-const CharityChallenge = artifacts.require('CharityChallenge.sol')
+const TestableCharityChallenge = artifacts.require('TestableCharityChallenge.sol')
 const MarketMock = artifacts.require('MarketMock.sol')
 const utils = require('./utils')
 
-contract('CharityChallenge', (accounts) => {
+contract('TestableCharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
   const VITALIK_WEARS_SUIT_CHALLENGE = 'Vitalik wearing suits on new year\'s eve'
@@ -24,7 +24,7 @@ contract('CharityChallenge', (accounts) => {
   beforeEach(async () => {
     marketMock = await MarketMock.new()
 
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
@@ -130,7 +130,7 @@ contract('CharityChallenge', (accounts) => {
   })
 
   it('should throw if DONOR_A sends money into contract after challenge end time', async () => {
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
@@ -148,7 +148,7 @@ contract('CharityChallenge', (accounts) => {
 
   it('should throw if finalize is called the second time after market is finalized and valid',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -166,7 +166,7 @@ contract('CharityChallenge', (accounts) => {
   it(
     'should set challenge accomplished to true if finalize is called the second time after market is finalized and valid',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -189,7 +189,7 @@ contract('CharityChallenge', (accounts) => {
   it(
     'should set challenge accomplished to TRUE if finalize is called the second time after market is finalized and valid',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -213,7 +213,7 @@ contract('CharityChallenge', (accounts) => {
   it(
     'should set challenge accomplished to FALSE if finalize is called the second time after market is finalized and valid',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -234,9 +234,8 @@ contract('CharityChallenge', (accounts) => {
       assert.isFalse(await charityChallengeContract.hasChallengeAccomplished())
     })
 
-  // TODO: Remove this test
   it('should throw if finalize is called after safety hatch 1 time', async () => {
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
@@ -249,10 +248,9 @@ contract('CharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
   })
 
-  // TODO: remove this test
   it('should send money to npo address if challenge accomplished', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
@@ -278,12 +276,11 @@ contract('CharityChallenge', (accounts) => {
     assert.equal(donatedAmount, 3)
   })
 
-  // TODO: remove this test
   it(
     'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH and challenge is not accomplished',
     async () => {
       const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -307,12 +304,11 @@ contract('CharityChallenge', (accounts) => {
         parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
-  // TODO: remove this test
   it(
     'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH after safety hatch 1 time even thou finalize has never been called',
     async () => {
       const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -334,11 +330,10 @@ contract('CharityChallenge', (accounts) => {
         parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
-  // TODO: remove this test
   it(
     'should throw if DONOR_A to claim 5 ETH after safety hatch 2 time',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -357,10 +352,9 @@ contract('CharityChallenge', (accounts) => {
       await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
     })
 
-  // TODO: remove this test
   it('should allow contract owner to claim total contract balance of 5 ETH', async () => {
     const CONTRACT_OWNER_INITIAL_BALANCE = web3.eth.getBalance(CONTRACT_OWNER)
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
@@ -387,11 +381,10 @@ contract('CharityChallenge', (accounts) => {
     assert.equal(safetyHatchClaimAmount, 5)
   })
 
-  // TODO: remove this test
   it(
     'should return zero balance of DONOR_A, DONOR_B, DONOR_C in the contract when contract owner calls safety hatch claim after safety hatch 2',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -418,11 +411,10 @@ contract('CharityChallenge', (accounts) => {
         '0')
     })
 
-  // TODO: remove this test
   it(
     'should emit SafetyHatchClaimed event when contract owner claims total contract balance after safety hatch time 2',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -447,7 +439,7 @@ contract('CharityChallenge', (accounts) => {
   it(
     'should throw if it is not the contract owner who calls safety hatch claim after safety hatch time 2',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -469,7 +461,7 @@ contract('CharityChallenge', (accounts) => {
   it(
     'should throw if contract owner calls safety hatch claim before safety hatch time 2',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -488,11 +480,10 @@ contract('CharityChallenge', (accounts) => {
       await utils.assertRevert(charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER }))
     })
 
-  // TODO: Remove this test
   it(
     'should emit Claimed event after DONOR_A claims the money',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -514,11 +505,10 @@ contract('CharityChallenge', (accounts) => {
       assert.equal(result.logs[0].event, 'Claimed')
     })
 
-  // TODO: Remove this test
   it(
     'should return balance of DONOR_A as zero after DONOR_A has claimed',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -540,11 +530,10 @@ contract('CharityChallenge', (accounts) => {
       assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
     })
 
-  // TODO: remove this test
   it(
     'should throw if DONOR_A is trying to claim money he has never donated',
     async () => {
-      charityChallengeContract = await CharityChallenge.new(
+      charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
@@ -566,7 +555,7 @@ contract('CharityChallenge', (accounts) => {
   })
 
   it('should throw if DONOR_A call claims before finalize method is called', async () => {
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
@@ -576,9 +565,8 @@ contract('CharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
 
-  // TODO: Remove this test
   it('should throw if DONOR_A call claims when challenge has accomplished', async () => {
-    charityChallengeContract = await CharityChallenge.new(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
