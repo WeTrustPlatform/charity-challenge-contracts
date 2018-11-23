@@ -32,9 +32,9 @@ contract CharityChallenge {
 
     bool public hasChallengeAccomplished;
 
-    mapping(address => uint256) public donorBalances;
+    bool private safetyHatchClaimSucceeded;
 
-    address[] private donors;
+    mapping(address => uint256) public donorBalances;
 
     constructor(
         address _contractOwner,
@@ -60,14 +60,14 @@ contract CharityChallenge {
         require(now <= challengeEndTime);
         require(msg.value > 0);
 
-        if (balanceOf(msg.sender) == 0) {
-            donors.push(msg.sender);
-        }
         donorBalances[msg.sender] += msg.value;
         emit Received(msg.sender, msg.value);
     }
 
     function balanceOf(address _donorAddress) public view returns (uint256) {
+        if (safetyHatchClaimSucceeded) {
+            return 0;
+        }
         return donorBalances[_donorAddress];
     }
 
@@ -107,9 +107,7 @@ contract CharityChallenge {
 
         uint totalContractBalance = address(this).balance;
         contractOwner.transfer(address(this).balance);
-        for (uint256 i = 0; i < donors.length; i++) {
-            donorBalances[donors[i]] = 0;
-        }
+        safetyHatchClaimSucceeded = true;
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
