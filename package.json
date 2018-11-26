@@ -8,6 +8,7 @@
   },
   "scripts": {
     "lint": "solium -d contracts/ --fix",
+    "compile": "truffle compile",
     "test": "solidity-coverage"
   },
   "author": "",
