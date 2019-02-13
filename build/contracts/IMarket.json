@@ -53,10 +53,10 @@
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.4.24;\n\n// Market API used to interract with augur, we only need to describe the\n// functions we'll be using.\n// cf https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/IMarket.sol\ninterface IMarket {\n    function isFinalized() external view returns (bool);\n    function isInvalid() external view returns (bool);\n    function getWinningPayoutNumerator(uint256 _outcome) external view returns (uint256);\n}",
-  "sourcePath": "/Users/minheq2/Documents/Repositories/charity-challenge-contract/contracts/IMarket.sol",
+  "source": "pragma solidity ^0.5.0;\n\n// Market API used to interract with augur, we only need to describe the\n// functions we'll be using.\n// cf https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/IMarket.sol\ninterface IMarket {\n    function isFinalized() external view returns (bool);\n    function isInvalid() external view returns (bool);\n    function getWinningPayoutNumerator(uint256 _outcome) external view returns (uint256);\n}",
+  "sourcePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
   "ast": {
-    "absolutePath": "/Users/minheq2/Documents/Repositories/charity-challenge-contract/contracts/IMarket.sol",
+    "absolutePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
     "exportedSymbols": {
       "IMarket": [
         399
@@ -70,11 +70,11 @@
         "literals": [
           "solidity",
           "^",
-          "0.4",
-          ".24"
+          "0.5",
+          ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:1"
+        "src": "0:23:1"
       },
       {
         "baseContracts": [],
@@ -94,8 +94,7 @@
             "documentation": null,
             "id": 386,
             "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
+            "kind": "function",
             "modifiers": [],
             "name": "isFinalized",
             "nodeType": "FunctionDefinition",
@@ -103,9 +102,8 @@
               "id": 382,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "272:2:1"
+              "src": "271:2:1"
             },
-            "payable": false,
             "returnParameters": {
               "id": 385,
               "nodeType": "ParameterList",
@@ -116,7 +114,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 386,
-                  "src": "298:4:1",
+                  "src": "297:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -127,7 +125,7 @@
                     "id": 383,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "298:4:1",
+                    "src": "297:4:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -137,10 +135,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "297:6:1"
+              "src": "296:6:1"
             },
             "scope": 399,
-            "src": "252:52:1",
+            "src": "251:52:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
@@ -150,8 +148,7 @@
             "documentation": null,
             "id": 391,
             "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
+            "kind": "function",
             "modifiers": [],
             "name": "isInvalid",
             "nodeType": "FunctionDefinition",
@@ -159,9 +156,8 @@
               "id": 387,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "327:2:1"
+              "src": "326:2:1"
             },
-            "payable": false,
             "returnParameters": {
               "id": 390,
               "nodeType": "ParameterList",
@@ -172,7 +168,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 391,
-                  "src": "353:4:1",
+                  "src": "352:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -183,7 +179,7 @@
                     "id": 388,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "353:4:1",
+                    "src": "352:4:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -193,10 +189,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "352:6:1"
+              "src": "351:6:1"
             },
             "scope": 399,
-            "src": "309:50:1",
+            "src": "308:50:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
@@ -206,8 +202,7 @@
             "documentation": null,
             "id": 398,
             "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
+            "kind": "function",
             "modifiers": [],
             "name": "getWinningPayoutNumerator",
             "nodeType": "FunctionDefinition",
@@ -221,7 +216,7 @@
                   "name": "_outcome",
                   "nodeType": "VariableDeclaration",
                   "scope": 398,
-                  "src": "399:16:1",
+                  "src": "398:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -232,7 +227,7 @@
                     "id": 392,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "399:7:1",
+                    "src": "398:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -242,9 +237,8 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "398:18:1"
+              "src": "397:18:1"
             },
-            "payable": false,
             "returnParameters": {
               "id": 397,
               "nodeType": "ParameterList",
@@ -255,7 +249,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 398,
-                  "src": "440:7:1",
+                  "src": "439:7:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -266,7 +260,7 @@
                     "id": 395,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "440:7:1",
+                    "src": "439:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -276,23 +270,23 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "439:9:1"
+              "src": "438:9:1"
             },
             "scope": 399,
-            "src": "364:85:1",
+            "src": "363:85:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
         "scope": 400,
-        "src": "228:223:1"
+        "src": "227:223:1"
       }
     ],
-    "src": "0:451:1"
+    "src": "0:450:1"
   },
   "legacyAST": {
-    "absolutePath": "/Users/minheq2/Documents/Repositories/charity-challenge-contract/contracts/IMarket.sol",
+    "absolutePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
     "exportedSymbols": {
       "IMarket": [
         399
@@ -306,11 +300,11 @@
         "literals": [
           "solidity",
           "^",
-          "0.4",
-          ".24"
+          "0.5",
+          ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:1"
+        "src": "0:23:1"
       },
       {
         "baseContracts": [],
@@ -330,8 +324,7 @@
             "documentation": null,
             "id": 386,
             "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
+            "kind": "function",
             "modifiers": [],
             "name": "isFinalized",
             "nodeType": "FunctionDefinition",
@@ -339,9 +332,8 @@
               "id": 382,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "272:2:1"
+              "src": "271:2:1"
             },
-            "payable": false,
             "returnParameters": {
               "id": 385,
               "nodeType": "ParameterList",
@@ -352,7 +344,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 386,
-                  "src": "298:4:1",
+                  "src": "297:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -363,7 +355,7 @@
                     "id": 383,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "298:4:1",
+                    "src": "297:4:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -373,10 +365,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "297:6:1"
+              "src": "296:6:1"
             },
             "scope": 399,
-            "src": "252:52:1",
+            "src": "251:52:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
@@ -386,8 +378,7 @@
             "documentation": null,
             "id": 391,
             "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
+            "kind": "function",
             "modifiers": [],
             "name": "isInvalid",
             "nodeType": "FunctionDefinition",
@@ -395,9 +386,8 @@
               "id": 387,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "327:2:1"
+              "src": "326:2:1"
             },
-            "payable": false,
             "returnParameters": {
               "id": 390,
               "nodeType": "ParameterList",
@@ -408,7 +398,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 391,
-                  "src": "353:4:1",
+                  "src": "352:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -419,7 +409,7 @@
                     "id": 388,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "353:4:1",
+                    "src": "352:4:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -429,10 +419,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "352:6:1"
+              "src": "351:6:1"
             },
             "scope": 399,
-            "src": "309:50:1",
+            "src": "308:50:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
@@ -442,8 +432,7 @@
             "documentation": null,
             "id": 398,
             "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
+            "kind": "function",
             "modifiers": [],
             "name": "getWinningPayoutNumerator",
             "nodeType": "FunctionDefinition",
@@ -457,7 +446,7 @@
                   "name": "_outcome",
                   "nodeType": "VariableDeclaration",
                   "scope": 398,
-                  "src": "399:16:1",
+                  "src": "398:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -468,7 +457,7 @@
                     "id": 392,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "399:7:1",
+                    "src": "398:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -478,9 +467,8 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "398:18:1"
+              "src": "397:18:1"
             },
-            "payable": false,
             "returnParameters": {
               "id": 397,
               "nodeType": "ParameterList",
@@ -491,7 +479,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 398,
-                  "src": "440:7:1",
+                  "src": "439:7:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -502,7 +490,7 @@
                     "id": 395,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "440:7:1",
+                    "src": "439:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -512,26 +500,32 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "439:9:1"
+              "src": "438:9:1"
             },
             "scope": 399,
-            "src": "364:85:1",
+            "src": "363:85:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
         "scope": 400,
-        "src": "228:223:1"
+        "src": "227:223:1"
       }
     ],
-    "src": "0:451:1"
+    "src": "0:450:1"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+    "version": "0.5.0+commit.1d4f565a.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "2.0.1",
-  "updatedAt": "2018-11-26T04:18:41.681Z"
+  "schemaVersion": "3.0.2",
+  "updatedAt": "2019-02-13T08:27:25.908Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
 }

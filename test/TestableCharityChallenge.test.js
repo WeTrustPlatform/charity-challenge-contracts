@@ -69,11 +69,11 @@ contract('TestableCharityChallenge', (accounts) => {
   it('should return contract balance of 10 ETH when DONOR_A sends 10 ETH', async () => {
     // perform test
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('10', 'ether'), from: DONOR_A })
+      { value: web3.utils.toWei('10', 'ether'), from: DONOR_A })
 
     // test verification
     const contractBalance = await web3.eth.getBalance(charityChallengeContract.address)
-    assert.equal(web3.fromWei(contractBalance, 'ether'), '10')
+    assert.equal(web3.utils.fromWei(contractBalance, 'ether'), '10')
   })
 
   it(
@@ -81,38 +81,38 @@ contract('TestableCharityChallenge', (accounts) => {
     async () => {
       // perform test
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('10', 'ether'), from: DONOR_A }
+        { value: web3.utils.toWei('10', 'ether'), from: DONOR_A }
       )
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('1', 'ether'), from: DONOR_B }
+        { value: web3.utils.toWei('1', 'ether'), from: DONOR_B }
       )
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('1', 'ether'), from: DONOR_A }
+        { value: web3.utils.toWei('1', 'ether'), from: DONOR_A }
       )
 
       // test verification
       const contractBalance = await web3.eth.getBalance(charityChallengeContract.address)
-      assert.equal(web3.fromWei(contractBalance, 'ether'), '12')
+      assert.equal(web3.utils.fromWei(contractBalance, 'ether'), '12')
     })
 
   it('should return that DONOR_A has donated 11 ETH if he has donated 11 ETH', async () => {
     // perform test
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('10', 'ether'), from: DONOR_A }
+      { value: web3.utils.toWei('10', 'ether'), from: DONOR_A }
     )
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('1', 'ether'), from: DONOR_B }
+      { value: web3.utils.toWei('1', 'ether'), from: DONOR_B }
     )
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('1', 'ether'), from: DONOR_A }
+      { value: web3.utils.toWei('1', 'ether'), from: DONOR_A }
     )
 
     // test verification
-    assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '11')
+    assert.equal(web3.utils.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '11')
   })
 
   it('should return that DONOR_A has donated 0 ETH if he has not donated any', async () => {
-    assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
+    assert.equal(web3.utils.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
   })
 
   it('should throw if donation amount is zero', async () => {
@@ -123,7 +123,7 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should emit Recieved event when DONOR_A sends money into contract', async () => {
     const result = await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('2', 'ether'), from: DONOR_A }
+      { value: web3.utils.toWei('2', 'ether'), from: DONOR_A }
     )
 
     assert.equal(result.logs[0].event, 'Received')
@@ -138,7 +138,7 @@ contract('TestableCharityChallenge', (accounts) => {
       CHALLENGE_END_TIME_IN_THE_PAST)
 
     await utils.assertRevert(charityChallengeContract.sendTransaction(
-      { value: web3.toWei('1', 'ether'), from: DONOR_A }
+      { value: web3.utils.toWei('1', 'ether'), from: DONOR_A }
     ))
   })
 
@@ -249,7 +249,7 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should send money to npo address if challenge accomplished', async () => {
-    const RAINFOREST_NPO_INITIAL_BALANCE = web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
+    const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
@@ -257,9 +257,9 @@ contract('TestableCharityChallenge', (accounts) => {
       VITALIK_WEARS_SUIT_CHALLENGE,
       CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('1', 'ether'), from: DONOR_A })
+      { value: web3.utils.toWei('1', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('2', 'ether'), from: DONOR_B })
+      { value: web3.utils.toWei('2', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
     await marketMock.setFinalized(true)
@@ -267,19 +267,20 @@ contract('TestableCharityChallenge', (accounts) => {
     await marketMock.setPayoutNumerators([0, 10000])
     await charityChallengeContract.finalize({ from: DONOR_A })
 
+    const rainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS) 
     // perform test
     const donatedAmount =
       parseInt(
-        web3.fromWei(web3.eth.getBalance(RAINFOREST_NPO_ADDRESS), 'ether')) -
+        web3.utils.fromWei(rainForestBalance.toString(), 'ether')) -
       parseInt(
-        web3.fromWei(RAINFOREST_NPO_INITIAL_BALANCE, 'ether'))
+        web3.utils.fromWei(RAINFOREST_NPO_INITIAL_BALANCE.toString(), 'ether'))
     assert.equal(donatedAmount, 3)
   })
 
   it(
     'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH and challenge is not accomplished',
     async () => {
-      const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
+      const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
@@ -287,7 +288,7 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await marketMock.setFinalized(true)
@@ -300,14 +301,14 @@ contract('TestableCharityChallenge', (accounts) => {
 
       // test verification
       assert.equal(
-        parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
-        parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
+        parseInt(web3.utils.fromWei(DONOR_A_INITIAL_BALANCE.toString(), 'ether')),
+        parseInt(web3.utils.fromWei(await web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
   it(
     'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH after safety hatch 1 time even thou finalize has never been called',
     async () => {
-      const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
+      const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
@@ -315,7 +316,7 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeSafetyHatchTime1(
@@ -326,14 +327,14 @@ contract('TestableCharityChallenge', (accounts) => {
 
       // test verification
       assert.equal(
-        parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
-        parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
+        parseInt(web3.utils.fromWei(DONOR_A_INITIAL_BALANCE.toString(), 'ether')),
+        parseInt(web3.utils.fromWei(await web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
   it(
     'should allow DONOR_A to claim 5 ETH after safety hatch 2 time',
     async () => {
-      const DONOR_A_INITIAL_BALANCE = web3.eth.getBalance(DONOR_A)
+      const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
@@ -341,7 +342,7 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeSafetyHatchTime1(
@@ -354,12 +355,12 @@ contract('TestableCharityChallenge', (accounts) => {
 
       // test verification
       assert.equal(
-        parseInt(web3.fromWei(DONOR_A_INITIAL_BALANCE, 'ether')),
-        parseInt(web3.fromWei(web3.eth.getBalance(DONOR_A), 'ether')))
+        parseInt(web3.utils.fromWei(DONOR_A_INITIAL_BALANCE.toString(), 'ether')),
+        parseInt(web3.utils.fromWei(await web3.eth.getBalance(DONOR_A), 'ether')))
     })
 
   it('should allow contract owner to claim total contract balance of 5 ETH', async () => {
-    const CONTRACT_OWNER_INITIAL_BALANCE = web3.eth.getBalance(CONTRACT_OWNER)
+    const CONTRACT_OWNER_INITIAL_BALANCE = await web3.eth.getBalance(CONTRACT_OWNER)
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
@@ -367,9 +368,9 @@ contract('TestableCharityChallenge', (accounts) => {
       VITALIK_WEARS_SUIT_CHALLENGE,
       CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('2', 'ether'), from: DONOR_A })
+      { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
-      { value: web3.toWei('3', 'ether'), from: DONOR_B })
+      { value: web3.utils.toWei('3', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeSafetyHatchTime1(
       CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
     await charityChallengeContract.setChallengeSafetyHatchTime2(
@@ -378,12 +379,13 @@ contract('TestableCharityChallenge', (accounts) => {
     // perform test
     await charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER })
 
+    const balance = await web3.eth.getBalance(CONTRACT_OWNER)
     // test verification
     const safetyHatchClaimAmount =
       parseInt(
-        web3.fromWei(web3.eth.getBalance(CONTRACT_OWNER), 'ether')) -
+        web3.utils.fromWei(balance.toString(), 'ether')) -
       parseInt(
-        web3.fromWei(CONTRACT_OWNER_INITIAL_BALANCE, 'ether'))
+        web3.utils.fromWei(CONTRACT_OWNER_INITIAL_BALANCE.toString(), 'ether'))
     assert.equal(safetyHatchClaimAmount, 5)
   })
 
@@ -397,9 +399,9 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+        { value: web3.utils.toWei('3', 'ether'), from: DONOR_B })
       await charityChallengeContract.setChallengeSafetyHatchTime1(
         CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeSafetyHatchTime2(
@@ -408,12 +410,16 @@ contract('TestableCharityChallenge', (accounts) => {
       // perform test
       await charityChallengeContract.safetyHatchClaim({ from: CONTRACT_OWNER })
 
+      const balanceA = await charityChallengeContract.balanceOf(DONOR_A)
+      const balanceB = await charityChallengeContract.balanceOf(DONOR_B)
+      const balanceC = await charityChallengeContract.balanceOf(DONOR_C)
+      const balance = await web3.eth.getBalance(charityChallengeContract.address)
       // test verification
-      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A), 'ether'), '0')
-      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_B), 'ether'), '0')
-      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_C), 'ether'), '0')
+      assert.equal(web3.utils.fromWei(balanceA.toString(), 'ether'), '0')
+      assert.equal(web3.utils.fromWei(balanceB.toString(), 'ether'), '0')
+      assert.equal(web3.utils.fromWei(balanceC.toString(), 'ether'), '0')
       assert.equal(
-        web3.fromWei(web3.eth.getBalance(charityChallengeContract.address), 'ether'),
+        web3.utils.fromWei(balance, 'ether'),
         '0')
     })
 
@@ -427,9 +433,9 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+        { value: web3.utils.toWei('3', 'ether'), from: DONOR_B })
       await charityChallengeContract.setChallengeSafetyHatchTime1(
         CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeSafetyHatchTime2(
@@ -452,9 +458,9 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+        { value: web3.utils.toWei('3', 'ether'), from: DONOR_B })
       await charityChallengeContract.setChallengeSafetyHatchTime1(
         CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeSafetyHatchTime2(
@@ -474,9 +480,9 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('2', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('3', 'ether'), from: DONOR_B })
+        { value: web3.utils.toWei('3', 'ether'), from: DONOR_B })
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await charityChallengeContract.setChallengeSafetyHatchTime1(
@@ -496,7 +502,7 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
       await marketMock.setFinalized(true)
@@ -521,7 +527,7 @@ contract('TestableCharityChallenge', (accounts) => {
         VITALIK_WEARS_SUIT_CHALLENGE,
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
-        { value: web3.toWei('5', 'ether'), from: DONOR_A })
+        { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
       await marketMock.setFinalized(true)
@@ -533,7 +539,7 @@ contract('TestableCharityChallenge', (accounts) => {
       await charityChallengeContract.claim({ from: DONOR_A })
 
       // test verification
-      assert.equal(web3.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
+      assert.equal(web3.utils.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
     })
 
   it(

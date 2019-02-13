@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./IMarket.sol";
 
@@ -30,7 +30,7 @@ contract MarketMock is IMarket {
         invalid = _invalid;
     }
 
-    function setPayoutNumerators(uint32[2] _payoutNumerators) public {
+    function setPayoutNumerators(uint32[2] memory _payoutNumerators) public {
         payoutNumerators = _payoutNumerators;
     }
 }
