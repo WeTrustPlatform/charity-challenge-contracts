@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./IMarket.sol";
 
@@ -12,9 +12,9 @@ contract CharityChallenge {
 
     event SafetyHatchClaimed(address indexed claimer, uint256 value);
 
-    address public contractOwner;
+    address payable public contractOwner;
 
-    address public npoAddress;
+    address payable public npoAddress;
 
     address public marketAddress;
 
@@ -37,10 +37,10 @@ contract CharityChallenge {
     mapping(address => uint256) public donorBalances;
 
     constructor(
-        address _contractOwner,
-        address _npoAddress,
+        address payable _contractOwner,
+        address payable _npoAddress,
         address _marketAddress,
-        string _challengeName,
+        string memory _challengeName,
         uint256 _challengeEndTime
     ) public
     {
@@ -56,7 +56,7 @@ contract CharityChallenge {
         hasChallengeAccomplished = false;
     }
 
-    function() public payable {
+    function() external payable {
         require(now <= challengeEndTime);
         require(msg.value > 0);
 

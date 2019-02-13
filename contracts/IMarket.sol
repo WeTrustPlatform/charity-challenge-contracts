@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 // Market API used to interract with augur, we only need to describe the
 // functions we'll be using.

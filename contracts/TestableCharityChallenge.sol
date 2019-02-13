@@ -1,13 +1,13 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "./CharityChallenge.sol";
 
 contract TestableCharityChallenge is CharityChallenge {
     constructor(
-        address _contractOwner,
-        address _npoAddress,
+        address payable _contractOwner,
+        address payable _npoAddress,
         address _marketAddress,
-        string _challengeName,
+        string memory _challengeName,
         uint256 _challengeEndTime
     ) CharityChallenge(
         _contractOwner,
