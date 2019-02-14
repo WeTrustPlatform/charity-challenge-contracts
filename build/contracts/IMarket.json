@@ -73,14 +73,14 @@
     "absolutePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
     "exportedSymbols": {
       "IMarket": [
-        404
+        396
       ]
     },
-    "id": 405,
+    "id": 397,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 381,
+        "id": 373,
         "literals": [
           "solidity",
           "^",
@@ -96,9 +96,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 404,
+        "id": 396,
         "linearizedBaseContracts": [
-          404
+          396
         ],
         "name": "IMarket",
         "nodeType": "ContractDefinition",
@@ -106,28 +106,28 @@
           {
             "body": null,
             "documentation": null,
-            "id": 386,
+            "id": 378,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "isFinalized",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 382,
+              "id": 374,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "271:2:1"
             },
             "returnParameters": {
-              "id": 385,
+              "id": 377,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 384,
+                  "id": 376,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 386,
+                  "scope": 378,
                   "src": "297:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -136,7 +136,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 383,
+                    "id": 375,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "297:4:1",
@@ -151,7 +151,7 @@
               ],
               "src": "296:6:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "251:52:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -160,28 +160,28 @@
           {
             "body": null,
             "documentation": null,
-            "id": 391,
+            "id": 383,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "isInvalid",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 387,
+              "id": 379,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "326:2:1"
             },
             "returnParameters": {
-              "id": 390,
+              "id": 382,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 389,
+                  "id": 381,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 391,
+                  "scope": 383,
                   "src": "352:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -190,7 +190,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 388,
+                    "id": 380,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "352:4:1",
@@ -205,7 +205,7 @@
               ],
               "src": "351:6:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "308:50:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -214,22 +214,22 @@
           {
             "body": null,
             "documentation": null,
-            "id": 398,
+            "id": 390,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getWinningPayoutNumerator",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 394,
+              "id": 386,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 393,
+                  "id": 385,
                   "name": "_outcome",
                   "nodeType": "VariableDeclaration",
-                  "scope": 398,
+                  "scope": 390,
                   "src": "398:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -238,7 +238,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 392,
+                    "id": 384,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "398:7:1",
@@ -254,15 +254,15 @@
               "src": "397:18:1"
             },
             "returnParameters": {
-              "id": 397,
+              "id": 389,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 396,
+                  "id": 388,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 398,
+                  "scope": 390,
                   "src": "439:7:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -271,7 +271,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 395,
+                    "id": 387,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "439:7:1",
@@ -286,7 +286,7 @@
               ],
               "src": "438:9:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "363:85:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -295,28 +295,28 @@
           {
             "body": null,
             "documentation": null,
-            "id": 403,
+            "id": 395,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getEndTime",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 399,
+              "id": 391,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "472:2:1"
             },
             "returnParameters": {
-              "id": 402,
+              "id": 394,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 401,
+                  "id": 393,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 403,
+                  "scope": 395,
                   "src": "498:7:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -325,7 +325,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 400,
+                    "id": 392,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "498:7:1",
@@ -340,14 +340,14 @@
               ],
               "src": "497:9:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "453:54:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 405,
+        "scope": 397,
         "src": "227:282:1"
       }
     ],
@@ -357,14 +357,14 @@
     "absolutePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
     "exportedSymbols": {
       "IMarket": [
-        404
+        396
       ]
     },
-    "id": 405,
+    "id": 397,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 381,
+        "id": 373,
         "literals": [
           "solidity",
           "^",
@@ -380,9 +380,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 404,
+        "id": 396,
         "linearizedBaseContracts": [
-          404
+          396
         ],
         "name": "IMarket",
         "nodeType": "ContractDefinition",
@@ -390,28 +390,28 @@
           {
             "body": null,
             "documentation": null,
-            "id": 386,
+            "id": 378,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "isFinalized",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 382,
+              "id": 374,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "271:2:1"
             },
             "returnParameters": {
-              "id": 385,
+              "id": 377,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 384,
+                  "id": 376,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 386,
+                  "scope": 378,
                   "src": "297:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -420,7 +420,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 383,
+                    "id": 375,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "297:4:1",
@@ -435,7 +435,7 @@
               ],
               "src": "296:6:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "251:52:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -444,28 +444,28 @@
           {
             "body": null,
             "documentation": null,
-            "id": 391,
+            "id": 383,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "isInvalid",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 387,
+              "id": 379,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "326:2:1"
             },
             "returnParameters": {
-              "id": 390,
+              "id": 382,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 389,
+                  "id": 381,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 391,
+                  "scope": 383,
                   "src": "352:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -474,7 +474,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 388,
+                    "id": 380,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "352:4:1",
@@ -489,7 +489,7 @@
               ],
               "src": "351:6:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "308:50:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -498,22 +498,22 @@
           {
             "body": null,
             "documentation": null,
-            "id": 398,
+            "id": 390,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getWinningPayoutNumerator",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 394,
+              "id": 386,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 393,
+                  "id": 385,
                   "name": "_outcome",
                   "nodeType": "VariableDeclaration",
-                  "scope": 398,
+                  "scope": 390,
                   "src": "398:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -522,7 +522,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 392,
+                    "id": 384,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "398:7:1",
@@ -538,15 +538,15 @@
               "src": "397:18:1"
             },
             "returnParameters": {
-              "id": 397,
+              "id": 389,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 396,
+                  "id": 388,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 398,
+                  "scope": 390,
                   "src": "439:7:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -555,7 +555,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 395,
+                    "id": 387,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "439:7:1",
@@ -570,7 +570,7 @@
               ],
               "src": "438:9:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "363:85:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -579,28 +579,28 @@
           {
             "body": null,
             "documentation": null,
-            "id": 403,
+            "id": 395,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getEndTime",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 399,
+              "id": 391,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "472:2:1"
             },
             "returnParameters": {
-              "id": 402,
+              "id": 394,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 401,
+                  "id": 393,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 403,
+                  "scope": 395,
                   "src": "498:7:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -609,7 +609,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 400,
+                    "id": 392,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "498:7:1",
@@ -624,14 +624,14 @@
               ],
               "src": "497:9:1"
             },
-            "scope": 404,
+            "scope": 396,
             "src": "453:54:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 405,
+        "scope": 397,
         "src": "227:282:1"
       }
     ],
@@ -643,7 +643,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.2",
-  "updatedAt": "2019-02-14T03:09:37.596Z",
+  "updatedAt": "2019-02-14T04:31:21.571Z",
   "devdoc": {
     "methods": {}
   },

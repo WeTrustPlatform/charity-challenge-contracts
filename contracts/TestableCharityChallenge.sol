@@ -6,13 +6,11 @@ contract TestableCharityChallenge is CharityChallenge {
     constructor(
         address payable _contractOwner,
         address payable _npoAddress,
-        address _marketAddress,
-        string memory _challengeName
+        address _marketAddress
     ) CharityChallenge(
         _contractOwner,
         _npoAddress,
-        _marketAddress,
-        _challengeName
+        _marketAddress
     ) public {}
 
     ///////////////////////////////////////////
