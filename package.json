@@ -1,8 +1,8 @@
 {
-  "name": "yes",
-  "version": "0.0.1",
+  "name": "@wetrustplatform/charity-challenge-contract",
+  "version": "0.0.2",
   "description": "charity challenge contract",
-  "main": "truffle-config.js",
+  "main": ".exported.js",
   "directories": {
     "test": "test"
   },
@@ -10,7 +10,8 @@
     "lint": "solium -d contracts/ --fix",
     "compile": "truffle compile",
     "build": "truffle build",
-    "test": "truffle test"
+    "test": "truffle test",
+    "beforePublish": "truffle compile && node dist.js"
   },
   "author": "",
   "license": "ISC",
