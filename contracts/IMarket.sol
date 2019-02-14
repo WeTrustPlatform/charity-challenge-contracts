@@ -7,4 +7,5 @@ interface IMarket {
     function isFinalized() external view returns (bool);
     function isInvalid() external view returns (bool);
     function getWinningPayoutNumerator(uint256 _outcome) external view returns (uint256);
+    function getEndTime() external view returns (uint256);
 }

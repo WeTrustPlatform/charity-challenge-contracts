@@ -6,6 +6,7 @@ contract MarketMock is IMarket {
     bool finalized;
     bool invalid;
     uint32[2] payoutNumerators;
+    uint256 endTime;
 
     constructor() public {
     }
@@ -21,6 +22,10 @@ contract MarketMock is IMarket {
     function getWinningPayoutNumerator(uint256 _outcome) public view returns (uint256) {
         return payoutNumerators[_outcome];
     }
+
+    function getEndTime() public view returns (uint256) {
+        return endTime;
+    }
     
     function setFinalized(bool _finalized) public {
         finalized = _finalized;
@@ -32,5 +37,9 @@ contract MarketMock is IMarket {
 
     function setPayoutNumerators(uint32[2] memory _payoutNumerators) public {
         payoutNumerators = _payoutNumerators;
+    }
+
+    function setEndTime(uint256 _endTime) public {
+      endTime = _endTime;
     }
 }

@@ -47,22 +47,36 @@
       "payable": false,
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEndTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.5.0;\n\n// Market API used to interract with augur, we only need to describe the\n// functions we'll be using.\n// cf https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/IMarket.sol\ninterface IMarket {\n    function isFinalized() external view returns (bool);\n    function isInvalid() external view returns (bool);\n    function getWinningPayoutNumerator(uint256 _outcome) external view returns (uint256);\n}",
+  "source": "pragma solidity ^0.5.0;\n\n// Market API used to interract with augur, we only need to describe the\n// functions we'll be using.\n// cf https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/IMarket.sol\ninterface IMarket {\n    function isFinalized() external view returns (bool);\n    function isInvalid() external view returns (bool);\n    function getWinningPayoutNumerator(uint256 _outcome) external view returns (uint256);\n    function getEndTime() external view returns (uint256);\n}",
   "sourcePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
   "ast": {
     "absolutePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
     "exportedSymbols": {
       "IMarket": [
-        399
+        404
       ]
     },
-    "id": 400,
+    "id": 405,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -82,9 +96,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 399,
+        "id": 404,
         "linearizedBaseContracts": [
-          399
+          404
         ],
         "name": "IMarket",
         "nodeType": "ContractDefinition",
@@ -137,7 +151,7 @@
               ],
               "src": "296:6:1"
             },
-            "scope": 399,
+            "scope": 404,
             "src": "251:52:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -191,7 +205,7 @@
               ],
               "src": "351:6:1"
             },
-            "scope": 399,
+            "scope": 404,
             "src": "308:50:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -272,27 +286,81 @@
               ],
               "src": "438:9:1"
             },
-            "scope": 399,
+            "scope": 404,
             "src": "363:85:1",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "external"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 403,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getEndTime",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 399,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "472:2:1"
+            },
+            "returnParameters": {
+              "id": 402,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 401,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 403,
+                  "src": "498:7:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 400,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "498:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "497:9:1"
+            },
+            "scope": 404,
+            "src": "453:54:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 400,
-        "src": "227:223:1"
+        "scope": 405,
+        "src": "227:282:1"
       }
     ],
-    "src": "0:450:1"
+    "src": "0:509:1"
   },
   "legacyAST": {
     "absolutePath": "/Users/tuyennguyen/Projects/charity-challenge/charity-challenge-contract/contracts/IMarket.sol",
     "exportedSymbols": {
       "IMarket": [
-        399
+        404
       ]
     },
-    "id": 400,
+    "id": 405,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -312,9 +380,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 399,
+        "id": 404,
         "linearizedBaseContracts": [
-          399
+          404
         ],
         "name": "IMarket",
         "nodeType": "ContractDefinition",
@@ -367,7 +435,7 @@
               ],
               "src": "296:6:1"
             },
-            "scope": 399,
+            "scope": 404,
             "src": "251:52:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -421,7 +489,7 @@
               ],
               "src": "351:6:1"
             },
-            "scope": 399,
+            "scope": 404,
             "src": "308:50:1",
             "stateMutability": "view",
             "superFunction": null,
@@ -502,18 +570,72 @@
               ],
               "src": "438:9:1"
             },
-            "scope": 399,
+            "scope": 404,
             "src": "363:85:1",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "external"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 403,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getEndTime",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 399,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "472:2:1"
+            },
+            "returnParameters": {
+              "id": 402,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 401,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 403,
+                  "src": "498:7:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 400,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "498:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "497:9:1"
+            },
+            "scope": 404,
+            "src": "453:54:1",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 400,
-        "src": "227:223:1"
+        "scope": 405,
+        "src": "227:282:1"
       }
     ],
-    "src": "0:450:1"
+    "src": "0:509:1"
   },
   "compiler": {
     "name": "solc",
@@ -521,7 +643,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.2",
-  "updatedAt": "2019-02-13T08:27:25.908Z",
+  "updatedAt": "2019-02-14T03:09:37.596Z",
   "devdoc": {
     "methods": {}
   },

@@ -7,14 +7,12 @@ contract TestableCharityChallenge is CharityChallenge {
         address payable _contractOwner,
         address payable _npoAddress,
         address _marketAddress,
-        string memory _challengeName,
-        uint256 _challengeEndTime
+        string memory _challengeName
     ) CharityChallenge(
         _contractOwner,
         _npoAddress,
         _marketAddress,
-        _challengeName,
-        _challengeEndTime
+        _challengeName
     ) public {}
 
     ///////////////////////////////////////////

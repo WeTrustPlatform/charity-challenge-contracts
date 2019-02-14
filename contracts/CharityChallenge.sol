@@ -40,8 +40,7 @@ contract CharityChallenge {
         address payable _contractOwner,
         address payable _npoAddress,
         address _marketAddress,
-        string memory _challengeName,
-        uint256 _challengeEndTime
+        string memory _challengeName
     ) public
     {
         contractOwner = _contractOwner;
@@ -49,7 +48,7 @@ contract CharityChallenge {
         challengeName = _challengeName;
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
-        challengeEndTime = _challengeEndTime;
+        challengeEndTime = market.getEndTime();
         challengeSafetyHatchTime1 = challengeEndTime + 30 days;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 30 days;
         isEventFinalizedAndValid = false;
