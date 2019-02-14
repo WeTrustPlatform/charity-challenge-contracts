@@ -103,10 +103,12 @@ contract('TestableCharityChallenge', (accounts) => {
 
     // test verification
     assert.equal(web3.utils.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '11')
+    assert.equal(2, await charityChallengeContract.donorCount())
   })
 
   it('should return that DONOR_A has donated 0 ETH if he has not donated any', async () => {
     assert.equal(web3.utils.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
+    assert.equal(0, await charityChallengeContract.donorCount())
   })
 
   it('should throw if donation amount is zero', async () => {
@@ -400,9 +402,8 @@ contract('TestableCharityChallenge', (accounts) => {
       assert.equal(web3.utils.fromWei(balanceA.toString(), 'ether'), '0')
       assert.equal(web3.utils.fromWei(balanceB.toString(), 'ether'), '0')
       assert.equal(web3.utils.fromWei(balanceC.toString(), 'ether'), '0')
-      assert.equal(
-        web3.utils.fromWei(balance, 'ether'),
-        '0')
+      assert.equal(web3.utils.fromWei(balance, 'ether'), '0')
+      assert.equal(2, await charityChallengeContract.donorCount())
     })
 
   it(
@@ -517,6 +518,7 @@ contract('TestableCharityChallenge', (accounts) => {
 
       // test verification
       assert.equal(web3.utils.fromWei(await charityChallengeContract.balanceOf(DONOR_A)), '0')
+      assert.equal(1, await charityChallengeContract.donorCount())
     })
 
   it(

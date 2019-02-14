@@ -34,6 +34,8 @@ contract CharityChallenge {
 
     mapping(address => uint256) public donorBalances;
 
+    uint256 public donorCount;
+
     constructor(
         address payable _contractOwner,
         address payable _npoAddress,
@@ -54,7 +56,9 @@ contract CharityChallenge {
     function() external payable {
         require(now <= challengeEndTime);
         require(msg.value > 0);
-
+        if (donorBalances[msg.sender] == 0 && msg.value > 0) {
+          donorCount++;
+        }
         donorBalances[msg.sender] += msg.value;
         emit Received(msg.sender, msg.value);
     }
