@@ -8,7 +8,6 @@ const utils = require('./utils')
 contract('TestableCharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
-  const VITALIK_WEARS_SUIT_CHALLENGE = 'Vitalik wearing suits on new year\'s eve'
   const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
   const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
   const CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
@@ -28,8 +27,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
   })
 
   it('should set contract owner via constructor', async () => {
@@ -42,10 +40,6 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should set Market address via constructor', async () => {
     assert.equal(await charityChallengeContract.marketAddress(), marketMock.address)
-  })
-
-  it('should set challenge name via constructor', async () => {
-    assert.equal(await charityChallengeContract.challengeName(), VITALIK_WEARS_SUIT_CHALLENGE)
   })
 
   it('should set challenge end time via constructor', async () => {
@@ -134,8 +128,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
 
     await utils.assertRevert(charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('1', 'ether'), from: DONOR_A }
@@ -152,8 +145,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await marketMock.setFinalized(true)
       await marketMock.setInvalid(false)
       await marketMock.setPayoutNumerators([0, 100000])
@@ -170,8 +162,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await marketMock.setFinalized(false)
       await charityChallengeContract.finalize({ from: DONOR_A })
 
@@ -193,8 +184,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await marketMock.setFinalized(true)
       await marketMock.setInvalid(true)
       await charityChallengeContract.finalize({ from: DONOR_A })
@@ -217,8 +207,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await marketMock.setFinalized(true)
       await marketMock.setInvalid(true)
       await charityChallengeContract.finalize({ from: DONOR_A })
@@ -239,8 +228,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
     await charityChallengeContract.setChallengeSafetyHatchTime1(
       CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
 
@@ -254,8 +242,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('1', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
@@ -285,8 +272,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
@@ -313,8 +299,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
@@ -339,8 +324,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
@@ -365,8 +349,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
@@ -396,8 +379,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -430,8 +412,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -455,8 +436,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -477,8 +457,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -499,8 +478,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
@@ -524,8 +502,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
@@ -549,8 +526,7 @@ contract('TestableCharityChallenge', (accounts) => {
       charityChallengeContract = await TestableCharityChallenge.new(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
-        marketMock.address,
-        VITALIK_WEARS_SUIT_CHALLENGE)
+        marketMock.address)
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
       await marketMock.setFinalized(true)
@@ -571,8 +547,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
 
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
@@ -582,8 +557,7 @@ contract('TestableCharityChallenge', (accounts) => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
-      marketMock.address,
-      VITALIK_WEARS_SUIT_CHALLENGE)
+      marketMock.address)
     await marketMock.setFinalized(true)
     await marketMock.setInvalid(false)
     await marketMock.setPayoutNumerators([0, 10000])

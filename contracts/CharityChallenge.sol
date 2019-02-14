@@ -20,8 +20,6 @@ contract CharityChallenge {
 
     IMarket market;
 
-    string public challengeName;
-
     uint256 public challengeEndTime;
 
     uint256 public challengeSafetyHatchTime1;
@@ -39,13 +37,11 @@ contract CharityChallenge {
     constructor(
         address payable _contractOwner,
         address payable _npoAddress,
-        address _marketAddress,
-        string memory _challengeName
+        address _marketAddress
     ) public
     {
         contractOwner = _contractOwner;
         npoAddress = _npoAddress;
-        challengeName = _challengeName;
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
         challengeEndTime = market.getEndTime();
