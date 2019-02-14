@@ -9,6 +9,7 @@
   "scripts": {
     "lint": "solium -d contracts/ --fix",
     "compile": "truffle compile",
+    "build": "truffle build",
     "test": "solidity-coverage"
   },
   "author": "",
