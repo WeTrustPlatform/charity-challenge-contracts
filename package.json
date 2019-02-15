@@ -1,5 +1,5 @@
 {
-  "name": "@wetrustplatform/charity-challenge-contract",
+  "name": "@wetrustplatform/charity-challenge-contracts",
   "version": "0.0.2",
   "description": "charity challenge contract",
   "main": ".exported.js",
