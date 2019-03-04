@@ -36,6 +36,14 @@ contract CharityChallenge {
 
     uint256 public donorCount;
 
+    bool private mReentrancyLock = false;
+    modifier nonReentrant() {
+        require(!mReentrancyLock);
+        mReentrancyLock = true;
+        _;
+        mReentrancyLock = false;
+    }
+
     constructor(
         address payable _contractOwner,
         address payable _npoAddress,
@@ -70,7 +78,7 @@ contract CharityChallenge {
         return donorBalances[_donorAddress];
     }
 
-    function finalize() external {
+    function finalize() nonReentrant external {
         require(now > challengeEndTime);
         require(now <= challengeSafetyHatchTime1);
         require(!isEventFinalizedAndValid);
@@ -78,24 +86,24 @@ contract CharityChallenge {
         bool hasError;
         (hasChallengeAccomplished, hasError) = checkAugur();
         if (!hasError) {
+            isEventFinalizedAndValid = true;
             if (hasChallengeAccomplished) {
                 uint256 totalContractBalance = address(this).balance;
                 npoAddress.transfer(address(this).balance);
                 emit Donated(npoAddress, totalContractBalance);
             }
-            isEventFinalizedAndValid = true;
         }
     }
 
-    function claim() external {
+    function claim() nonReentrant external {
         require(now > challengeEndTime);
         require(isEventFinalizedAndValid || now > challengeSafetyHatchTime1);
         require(!hasChallengeAccomplished || now > challengeSafetyHatchTime1);
         require(balanceOf(msg.sender) > 0);
 
         uint256 claimedAmount = balanceOf(msg.sender);
-        msg.sender.transfer(claimedAmount);
         donorBalances[msg.sender] = 0;
+        msg.sender.transfer(claimedAmount);
         emit Claimed(msg.sender, claimedAmount);
     }
 
@@ -104,8 +112,8 @@ contract CharityChallenge {
         require(msg.sender == contractOwner);
 
         uint totalContractBalance = address(this).balance;
-        contractOwner.transfer(address(this).balance);
         safetyHatchClaimSucceeded = true;
+        contractOwner.transfer(address(this).balance);
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
