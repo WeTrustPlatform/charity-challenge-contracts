@@ -17,6 +17,8 @@ contract CharityChallenge {
     // key is npo address, value is ratio
     mapping(address => uint8) public npoRatios;
 
+    uint8 sumRatio;
+
     address payable[] public npoAddresses;
 
     address public marketAddress;
@@ -61,6 +63,7 @@ contract CharityChallenge {
           address payable npo = _npoAddresses[i];
           npoAddresses.push(npo);
           npoRatios[npo] = _ratios[i];
+          sumRatio += _ratios[i];
         }
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
@@ -99,12 +102,7 @@ contract CharityChallenge {
             isEventFinalizedAndValid = true;
             if (hasChallengeAccomplished) {
                 uint256 totalContractBalance = address(this).balance;
-                uint8 sumRatio = 0;
                 uint length = npoAddresses.length;
-                for (uint i = 0; i < length; i++) {
-                  address payable npo = npoAddresses[i];
-                  sumRatio += npoRatios[npo];
-                }
                 uint256 donatedAmount = 0;
                 for (uint i = 0; i < length - 1; i++) {
                   address payable npo = npoAddresses[i];
@@ -124,18 +122,8 @@ contract CharityChallenge {
     }
 
     function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
+      require(npoRatios[_npo] > 0);
       uint256 totalContractBalance = address(this).balance;
-      uint8 sumRatio = 0;
-      uint length = npoAddresses.length;
-      bool found = false;
-      for (uint i = 0; i < length; i++) {
-        address payable npo = npoAddresses[i];
-        sumRatio += npoRatios[npo];
-        if (npo == _npo) {
-          found = true;
-        }
-      }
-      require(found);
       uint8 ratio = npoRatios[_npo];
       uint256 amount = totalContractBalance * ratio / sumRatio;
       return amount;
