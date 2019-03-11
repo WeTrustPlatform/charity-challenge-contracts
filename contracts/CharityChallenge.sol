@@ -68,8 +68,8 @@ contract CharityChallenge {
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
         challengeEndTime = market.getEndTime();
-        challengeSafetyHatchTime1 = challengeEndTime + 30 days;
-        challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 30 days;
+        challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
+        challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
         isEventFinalizedAndValid = false;
         hasChallengeAccomplished = false;
     }
