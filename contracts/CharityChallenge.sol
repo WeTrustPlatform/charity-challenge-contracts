@@ -14,8 +14,6 @@ contract CharityChallenge {
 
     address payable public contractOwner;
 
-    // wanna keep this as first npo address for compatibility
-    address payable public npoAddress;
     // key is npo address, value is ratio
     mapping(address => uint8) public npoRatios;
 
@@ -59,8 +57,6 @@ contract CharityChallenge {
         require(_npoAddresses.length == _ratios.length);
         uint length = _npoAddresses.length;
         contractOwner = _contractOwner;
-        // for backward compatibility
-        npoAddress = _npoAddresses[0];
         for (uint i = 0; i < length; i++) {
           address payable npo = _npoAddresses[i];
           npoAddresses.push(npo);
@@ -109,15 +105,40 @@ contract CharityChallenge {
                   address payable npo = npoAddresses[i];
                   sumRatio += npoRatios[npo];
                 }
-                for (uint i = 0; i < length; i++) {
+                uint256 donatedAmount = 0;
+                for (uint i = 0; i < length - 1; i++) {
                   address payable npo = npoAddresses[i];
                   uint8 ratio = npoRatios[npo];
                   uint256 amount = totalContractBalance * ratio / sumRatio;
+                  donatedAmount += amount;
                   npo.transfer(amount);
                   emit Donated(npo, amount);
                 }
+                // Don't want to keep any amount in the contract
+                uint256 remainingAmount = totalContractBalance - donatedAmount;
+                address payable npo = npoAddresses[length - 1];
+                npo.transfer(remainingAmount);
+                emit Donated(npo, remainingAmount);
             }
         }
+    }
+
+    function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
+      uint256 totalContractBalance = address(this).balance;
+      uint8 sumRatio = 0;
+      uint length = npoAddresses.length;
+      bool found = false;
+      for (uint i = 0; i < length; i++) {
+        address payable npo = npoAddresses[i];
+        sumRatio += npoRatios[npo];
+        if (npo == _npo) {
+          found = true;
+        }
+      }
+      require(found);
+      uint8 ratio = npoRatios[_npo];
+      uint256 amount = totalContractBalance * ratio / sumRatio;
+      return amount;
     }
 
     function claim() nonReentrant external {

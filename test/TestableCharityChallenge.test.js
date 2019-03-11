@@ -46,7 +46,7 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should set NPO address via constructor', async () => {
-    assert.equal(await charityChallengeContract.npoAddress(), RAINFOREST_NPO_ADDRESS)
+    assert.equal(await charityChallengeContract.npoAddresses(0), RAINFOREST_NPO_ADDRESS)
   })
 
   it('should set Market address via constructor', async () => {
@@ -598,7 +598,6 @@ contract('TestableCharityChallenge', (accounts) => {
       marketMock.address)
 
     assert.equal(CONTRACT_OWNER, await charityChallengeContract.contractOwner())
-    assert.equal(RAINFOREST_NPO_ADDRESS, await charityChallengeContract.npoAddress())
     assert.equal(RAINFOREST_NPO_ADDRESS, await charityChallengeContract.npoAddresses(0))
     assert.equal(CHAINSAFE_NPO_ADDRESS, await charityChallengeContract.npoAddresses(1))
     assert.equal(2, await charityChallengeContract.npoRatios(RAINFOREST_NPO_ADDRESS))
@@ -611,6 +610,17 @@ contract('TestableCharityChallenge', (accounts) => {
     const balance = await web3.eth.getBalance(charityChallengeContract.address)
     assert.equal(5, parseInt(
       web3.utils.fromWei(balance.toString(), 'ether')) )
+
+    // should get correct expected amount
+    const expectedRainForestAmountWei = await charityChallengeContract.getExpectedDonationAmount(RAINFOREST_NPO_ADDRESS);
+    const expectedRainForestAmount = parseFloat(web3.utils.fromWei(expectedRainForestAmountWei.toString(), 'ether'));
+    assert.equal('3.33', expectedRainForestAmount.toString().substring(0, 4));
+
+    const expectedChainSafeAmountWei = await charityChallengeContract.getExpectedDonationAmount(CHAINSAFE_NPO_ADDRESS);
+    const expectedChainSafeAmount = parseFloat(web3.utils.fromWei(expectedChainSafeAmountWei.toString(), 'ether'));
+    assert.equal('1.66', expectedChainSafeAmount.toString().substring(0, 4));
+
+    await utils.assertRevert(charityChallengeContract.getExpectedDonationAmount(CONTRACT_OWNER))
 
     // should donate correct amount to ratios
     const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
