@@ -14,7 +14,12 @@ contract CharityChallenge {
 
     address payable public contractOwner;
 
-    address payable public npoAddress;
+    // key is npo address, value is ratio
+    mapping(address => uint8) public npoRatios;
+
+    uint8 sumRatio;
+
+    address payable[] public npoAddresses;
 
     address public marketAddress;
 
@@ -46,12 +51,20 @@ contract CharityChallenge {
 
     constructor(
         address payable _contractOwner,
-        address payable _npoAddress,
+        address payable[] memory _npoAddresses,
+        uint8[] memory _ratios,
         address _marketAddress
     ) public
     {
+        require(_npoAddresses.length == _ratios.length);
+        uint length = _npoAddresses.length;
         contractOwner = _contractOwner;
-        npoAddress = _npoAddress;
+        for (uint i = 0; i < length; i++) {
+          address payable npo = _npoAddresses[i];
+          npoAddresses.push(npo);
+          npoRatios[npo] = _ratios[i];
+          sumRatio += _ratios[i];
+        }
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
         challengeEndTime = market.getEndTime();
@@ -89,10 +102,31 @@ contract CharityChallenge {
             isEventFinalizedAndValid = true;
             if (hasChallengeAccomplished) {
                 uint256 totalContractBalance = address(this).balance;
-                npoAddress.transfer(address(this).balance);
-                emit Donated(npoAddress, totalContractBalance);
+                uint length = npoAddresses.length;
+                uint256 donatedAmount = 0;
+                for (uint i = 0; i < length - 1; i++) {
+                  address payable npo = npoAddresses[i];
+                  uint8 ratio = npoRatios[npo];
+                  uint256 amount = totalContractBalance * ratio / sumRatio;
+                  donatedAmount += amount;
+                  npo.transfer(amount);
+                  emit Donated(npo, amount);
+                }
+                // Don't want to keep any amount in the contract
+                uint256 remainingAmount = totalContractBalance - donatedAmount;
+                address payable npo = npoAddresses[length - 1];
+                npo.transfer(remainingAmount);
+                emit Donated(npo, remainingAmount);
             }
         }
+    }
+
+    function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
+      require(npoRatios[_npo] > 0);
+      uint256 totalContractBalance = address(this).balance;
+      uint8 ratio = npoRatios[_npo];
+      uint256 amount = totalContractBalance * ratio / sumRatio;
+      return amount;
     }
 
     function claim() nonReentrant external {

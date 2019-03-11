@@ -11,3 +11,6 @@
 # coverage
 coverage/
 coverage.json
+
+# build
+/build
