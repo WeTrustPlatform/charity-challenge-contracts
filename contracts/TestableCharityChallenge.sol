@@ -5,11 +5,13 @@ import "./CharityChallenge.sol";
 contract TestableCharityChallenge is CharityChallenge {
     constructor(
         address payable _contractOwner,
-        address payable _npoAddress,
+        address payable[] memory _npoAddresses,
+        uint8[] memory _ratios,
         address _marketAddress
     ) CharityChallenge(
         _contractOwner,
-        _npoAddress,
+        _npoAddresses,
+        _ratios,
         _marketAddress
     ) public {}
 

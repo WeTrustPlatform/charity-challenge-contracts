@@ -14,7 +14,12 @@ contract CharityChallenge {
 
     address payable public contractOwner;
 
+    // wanna keep this as first npo address for compatibility
     address payable public npoAddress;
+    // key is npo address, value is ratio
+    mapping(address => uint8) public npoRatios;
+
+    address payable[] public npoAddresses;
 
     address public marketAddress;
 
@@ -46,12 +51,21 @@ contract CharityChallenge {
 
     constructor(
         address payable _contractOwner,
-        address payable _npoAddress,
+        address payable[] memory _npoAddresses,
+        uint8[] memory _ratios,
         address _marketAddress
     ) public
     {
+        require(_npoAddresses.length == _ratios.length);
+        uint length = _npoAddresses.length;
         contractOwner = _contractOwner;
-        npoAddress = _npoAddress;
+        // for backward compatibility
+        npoAddress = _npoAddresses[0];
+        for (uint i = 0; i < length; i++) {
+          address payable npo = _npoAddresses[i];
+          npoAddresses.push(npo);
+          npoRatios[npo] = _ratios[i];
+        }
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
         challengeEndTime = market.getEndTime();
@@ -89,8 +103,19 @@ contract CharityChallenge {
             isEventFinalizedAndValid = true;
             if (hasChallengeAccomplished) {
                 uint256 totalContractBalance = address(this).balance;
-                npoAddress.transfer(address(this).balance);
-                emit Donated(npoAddress, totalContractBalance);
+                uint8 sumRatio = 0;
+                uint length = npoAddresses.length;
+                for (uint i = 0; i < length; i++) {
+                  address payable npo = npoAddresses[i];
+                  sumRatio += npoRatios[npo];
+                }
+                for (uint i = 0; i < length; i++) {
+                  address payable npo = npoAddresses[i];
+                  uint8 ratio = npoRatios[npo];
+                  uint256 amount = totalContractBalance * ratio / sumRatio;
+                  npo.transfer(amount);
+                  emit Donated(npo, amount);
+                }
             }
         }
     }
