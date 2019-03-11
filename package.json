@@ -1,7 +1,7 @@
 {
   "name": "@wetrustplatform/charity-challenge-contracts",
   "version": "0.1.0",
-  "description": "charity challenge contract",
+  "description": "charity challenge contracts",
   "main": ".exported.js",
   "directories": {
     "test": "test"
@@ -13,8 +13,8 @@
     "test": "truffle test",
     "beforePublish": "truffle compile && node dist.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "WeTrustPlatform",
+  "license": "LGPL-3.0",
   "devDependencies": {
     "@types/chai": "^4.1.5",
     "@types/mocha": "^5.2.5",
