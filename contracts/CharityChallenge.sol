@@ -95,7 +95,10 @@ contract CharityChallenge {
         require(now > challengeEndTime);
         require(now <= challengeSafetyHatchTime1);
         require(!isEventFinalizedAndValid);
+        doFinalize();
+    }
 
+    function doFinalize() private {
         bool hasError;
         (hasChallengeAccomplished, hasError) = checkAugur();
         if (!hasError) {
