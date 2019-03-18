@@ -59,8 +59,8 @@ contract('TestableCharityChallenge', (accounts) => {
       CHALLENGE_END_TIME_IN_THE_FUTURE)
   })
 
-  it('should set isEventFinalizedAndValid to false once contract is deployed', async () => {
-    assert.isFalse(await charityChallengeContract.isEventFinalizedAndValid())
+  it('should set isEventFinalized to false once contract is deployed', async () => {
+    assert.isFalse(await charityChallengeContract.isEventFinalized())
   })
 
   it('should set hasChallengeAccomplished to false once contract is deployed', async () => {
@@ -152,7 +152,7 @@ contract('TestableCharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_A }))
   })
 
-  it('should throw if finalize is called the second time after market is finalized and valid',
+  it('should throw if finalize is called the second time after market is finalized',
     async () => {
       marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
       charityChallengeContract = await newSingleNPOChallengeContract(
@@ -169,7 +169,7 @@ contract('TestableCharityChallenge', (accounts) => {
     })
 
   it(
-    'should set challenge accomplished to true if finalize is called the second time after market is finalized and valid',
+    'should set challenge accomplished to true if finalize is called the second time after market is finalized',
     async () => {
       marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
       charityChallengeContract = await newSingleNPOChallengeContract(
@@ -187,11 +187,11 @@ contract('TestableCharityChallenge', (accounts) => {
       await charityChallengeContract.finalize({ from: DONOR_A })
 
       // test verification
-      assert.isTrue(await charityChallengeContract.isEventFinalizedAndValid())
+      assert.isTrue(await charityChallengeContract.isEventFinalized())
     })
 
   it(
-    'should set challenge accomplished to TRUE if finalize is called the second time after market is finalized and valid',
+    'should set challenge accomplished to FALSE if market is finalized and its outcome is INVALID',
     async () => {
       marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
       charityChallengeContract = await newSingleNPOChallengeContract(
@@ -200,34 +200,6 @@ contract('TestableCharityChallenge', (accounts) => {
         marketMock.address)
       await marketMock.setFinalized(true)
       await marketMock.setInvalid(true)
-      await charityChallengeContract.finalize({ from: DONOR_A })
-
-      await marketMock.setFinalized(true)
-      await marketMock.setInvalid(false)
-      await marketMock.setPayoutNumerators([0, 10000])
-
-      // perform test
-      await charityChallengeContract.finalize({ from: DONOR_A })
-
-      // test verification
-      assert.isTrue(await charityChallengeContract.hasChallengeAccomplished())
-    })
-
-  it(
-    'should set challenge accomplished to FALSE if finalize is called the second time after market is finalized and valid',
-    async () => {
-      marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
-      charityChallengeContract = await newSingleNPOChallengeContract(
-        CONTRACT_OWNER,
-        RAINFOREST_NPO_ADDRESS,
-        marketMock.address)
-      await marketMock.setFinalized(true)
-      await marketMock.setInvalid(true)
-      await charityChallengeContract.finalize({ from: DONOR_A })
-
-      await marketMock.setFinalized(true)
-      await marketMock.setInvalid(false)
-      await marketMock.setPayoutNumerators([10000, 0])
 
       // perform test
       await charityChallengeContract.finalize({ from: DONOR_A })
