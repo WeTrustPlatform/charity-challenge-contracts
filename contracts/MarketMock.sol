@@ -40,6 +40,6 @@ contract MarketMock is IMarket {
     }
 
     function setEndTime(uint256 _endTime) public {
-      endTime = _endTime;
+        endTime = _endTime;
     }
 }
