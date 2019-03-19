@@ -12,6 +12,8 @@ contract CharityChallenge {
 
     event SafetyHatchClaimed(address indexed claimer, uint256 value);
 
+    string public constant VERSION = "0.2.0";
+
     address payable public contractOwner;
 
     // key is npo address, value is ratio
@@ -31,7 +33,8 @@ contract CharityChallenge {
 
     uint256 public challengeSafetyHatchTime2;
 
-    bool public isEventFinalizedAndValid;
+    // Valid outcomes are 'YES', 'NO' and 'INVALID'
+    bool public isEventFinalized;
 
     bool public hasChallengeAccomplished;
 
@@ -70,7 +73,7 @@ contract CharityChallenge {
         challengeEndTime = market.getEndTime();
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
-        isEventFinalizedAndValid = false;
+        isEventFinalized = false;
         hasChallengeAccomplished = false;
     }
 
@@ -94,7 +97,7 @@ contract CharityChallenge {
     function finalize() nonReentrant external {
         require(now > challengeEndTime);
         require(now <= challengeSafetyHatchTime1);
-        require(!isEventFinalizedAndValid);
+        require(!isEventFinalized);
         doFinalize();
     }
 
@@ -102,7 +105,7 @@ contract CharityChallenge {
         bool hasError;
         (hasChallengeAccomplished, hasError) = checkAugur();
         if (!hasError) {
-            isEventFinalizedAndValid = true;
+            isEventFinalized = true;
             if (hasChallengeAccomplished) {
                 uint256 totalContractBalance = address(this).balance;
                 uint length = npoAddresses.length;
@@ -134,7 +137,7 @@ contract CharityChallenge {
 
     function claim() nonReentrant external {
         require(now > challengeEndTime);
-        require(isEventFinalizedAndValid || now > challengeSafetyHatchTime1);
+        require(isEventFinalized || now > challengeSafetyHatchTime1);
         require(!hasChallengeAccomplished || now > challengeSafetyHatchTime1);
         require(balanceOf(msg.sender) > 0);
 
@@ -157,7 +160,9 @@ contract CharityChallenge {
     function checkAugur() private view returns (bool happened, bool errored) {
         if (market.isFinalized()) {
             if (market.isInvalid()) {
-                return (false, true);
+                // Treat 'invalid' outcome as 'no'
+                // because 'invalid' is one of the valid outcomes
+                return (false, false);
             } else {
                 uint256 no = market.getWinningPayoutNumerator(0);
                 uint256 yes = market.getWinningPayoutNumerator(1);
