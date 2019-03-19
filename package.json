@@ -18,9 +18,9 @@
   "devDependencies": {
     "@types/chai": "^4.1.5",
     "@types/mocha": "^5.2.5",
-    "chai-string": "^1.5.0",
     "chai": "^4.1.2",
-    "solium": "^1.1.8"
+    "chai-string": "^1.5.0",
+    "ethlint": "^1.2.3"
   },
   "dependencies": {
     "truffle": "5.0.4"
