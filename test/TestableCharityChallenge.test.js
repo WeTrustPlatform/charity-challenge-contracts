@@ -8,11 +8,11 @@ const utils = require('./utils')
 const newSingleNPOChallengeContract = (contractAddr, npoAddr, marketAddr) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, false)
 }
 
 const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketAddr) => {
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, false)
 }
 
 contract('TestableCharityChallenge', (accounts) => {

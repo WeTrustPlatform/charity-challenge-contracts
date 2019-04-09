@@ -25,6 +25,8 @@ contract CharityChallenge {
 
     address public marketAddress;
 
+    bool public unlockOnNo;
+
     IMarket market;
 
     uint256 public challengeEndTime;
@@ -36,6 +38,9 @@ contract CharityChallenge {
     // Valid outcomes are 'YES', 'NO' and 'INVALID'
     bool public isEventFinalized;
 
+    // hasChallengeAccomplished will be set to true if we got the expected
+    // result that allow to unlock the funds.
+    // By default we expect a YES. But if unlockOnNo is true, we expect a NO.
     bool public hasChallengeAccomplished;
 
     bool private safetyHatchClaimSucceeded;
@@ -56,7 +61,8 @@ contract CharityChallenge {
         address payable _contractOwner,
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
-        address _marketAddress
+        address _marketAddress,
+        bool _unlockOnNo
     ) public
     {
         require(_npoAddresses.length == _ratios.length);
@@ -71,6 +77,7 @@ contract CharityChallenge {
         contractOwner = _contractOwner;
         marketAddress = _marketAddress;
         market = IMarket(_marketAddress);
+        unlockOnNo = _unlockOnNo;
         challengeEndTime = market.getEndTime();
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
@@ -167,6 +174,9 @@ contract CharityChallenge {
             } else {
                 uint256 no = market.getWinningPayoutNumerator(0);
                 uint256 yes = market.getWinningPayoutNumerator(1);
+                if (unlockOnNo) {
+                    return (yes < no, false);
+                }
                 return (yes > no, false);
             }
         } else {
