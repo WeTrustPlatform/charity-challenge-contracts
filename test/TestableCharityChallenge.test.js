@@ -196,23 +196,37 @@ contract('TestableCharityChallenge', (accounts) => {
       assert.isTrue(await charityChallengeContract.isEventFinalized())
     })
 
-  it(
-    'should set challenge accomplished to FALSE if market is finalized and its outcome is INVALID',
-    async () => {
-      marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
-      charityChallengeContract = await newSingleNPOChallengeContract(
-        CONTRACT_OWNER,
-        RAINFOREST_NPO_ADDRESS,
-        marketMock.address)
-      await marketMock.setFinalized(true)
-      await marketMock.setInvalid(true)
+  it('should set challenge accomplished to FALSE if market is finalized and its outcome is INVALID', async () => {
+    marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
+    charityChallengeContract = await newSingleNPOChallengeContract(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address)
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(true)
 
-      // perform test
-      await charityChallengeContract.finalize({ from: DONOR_A })
+    // perform test
+    await charityChallengeContract.finalize({ from: DONOR_A })
 
-      // test verification
-      assert.isFalse(await charityChallengeContract.hasChallengeAccomplished())
-    })
+    // test verification
+    assert.isFalse(await charityChallengeContract.hasChallengeAccomplished())
+  })
+
+  it('should set challenge accomplished to FALSE if market is finalized and its outcome is INVALID, even when using unlockOnNo', async () => {
+    marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
+    charityChallengeContract = await newSingleNPOChallengeOption2Contract(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address)
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(true)
+
+    // perform test
+    await charityChallengeContract.finalize({ from: DONOR_A })
+
+    // test verification
+    assert.isFalse(await charityChallengeContract.hasChallengeAccomplished())
+  })
 
   it('should throw if finalize is called after safety hatch 1 time', async () => {
     marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_PAST)
