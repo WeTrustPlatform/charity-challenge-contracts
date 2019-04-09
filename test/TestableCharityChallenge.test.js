@@ -15,6 +15,12 @@ const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketA
   return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, false)
 }
 
+const newSingleNPOChallengeOption2Contract = (contractAddr, npoAddr, marketAddr) => {
+  const npoAddrs = [npoAddr]
+  const ratios = [1]
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, true)
+}
+
 contract('TestableCharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
@@ -221,7 +227,7 @@ contract('TestableCharityChallenge', (accounts) => {
     await utils.assertRevert(charityChallengeContract.finalize({ from: DONOR_B }))
   })
 
-  it('should send money to npo address if challenge accomplished', async () => {
+  it('should send money to npo address if augur market is YES', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
     marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeContract(
@@ -237,6 +243,34 @@ contract('TestableCharityChallenge', (accounts) => {
     await marketMock.setFinalized(true)
     await marketMock.setInvalid(false)
     await marketMock.setPayoutNumerators([0, 10000])
+    await charityChallengeContract.finalize({ from: DONOR_A })
+
+    const rainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS) 
+    // perform test
+    const donatedAmount =
+      parseInt(
+        web3.utils.fromWei(rainForestBalance.toString(), 'ether')) -
+      parseInt(
+        web3.utils.fromWei(RAINFOREST_NPO_INITIAL_BALANCE.toString(), 'ether'))
+    assert.equal(donatedAmount, 3)
+  })
+
+  it('should send money to npo address if augur market is NO', async () => {
+    const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
+    marketMock.setEndTime(CHALLENGE_END_TIME_IN_THE_FUTURE)
+    charityChallengeContract = await newSingleNPOChallengeOption2Contract(
+      CONTRACT_OWNER,
+      RAINFOREST_NPO_ADDRESS,
+      marketMock.address)
+    await charityChallengeContract.sendTransaction(
+      { value: web3.utils.toWei('1', 'ether'), from: DONOR_A })
+    await charityChallengeContract.sendTransaction(
+      { value: web3.utils.toWei('2', 'ether'), from: DONOR_B })
+    await charityChallengeContract.setChallengeEndTime(
+      CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+    await marketMock.setFinalized(true)
+    await marketMock.setInvalid(false)
+    await marketMock.setPayoutNumerators([10000, 0])
     await charityChallengeContract.finalize({ from: DONOR_A })
 
     const rainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS) 
