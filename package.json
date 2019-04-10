@@ -1,6 +1,6 @@
 {
   "name": "@wetrustplatform/charity-challenge-contracts",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "charity challenge contracts",
   "main": ".exported.js",
   "directories": {
