@@ -40,7 +40,6 @@ contract CharityChallenge {
 
     // hasChallengeAccomplished will be set to true if we got the expected
     // result that allow to unlock the funds.
-    // By default we expect a YES. But if unlockOnNo is true, we expect a NO.
     bool public hasChallengeAccomplished;
 
     bool private safetyHatchClaimSucceeded;
