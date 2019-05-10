@@ -84,7 +84,7 @@ contract CharityChallenge {
         questionId = _questionId;
         realityCheck = IRealityCheck(_marketAddress);
         unlockOnNo = _unlockOnNo;
-        challengeEndTime = 0; // FIXME;
+        challengeEndTime = realityCheck.getOpeningTS(questionId);
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
         isEventFinalized = false;

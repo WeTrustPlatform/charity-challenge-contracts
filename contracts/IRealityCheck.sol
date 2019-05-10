@@ -6,4 +6,5 @@ pragma solidity ^0.5.0;
 interface IRealityCheck {
     function isFinalized(bytes32 question_id) external view returns (bool);
     function getFinalAnswer(bytes32 question_id) external view returns (bytes32);
+    function getOpeningTS(bytes32 question_id) external view returns(uint32);
 }

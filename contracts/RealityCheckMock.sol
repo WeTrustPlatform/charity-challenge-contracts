@@ -22,6 +22,10 @@ contract RealityCheckMock is IRealityCheck {
         return questions[question_id].finalAnswer;
     }
 
+    function getOpeningTS(bytes32 question_id) public view returns (uint32) {
+        return questions[question_id].opening_ts;
+    }
+
     function addQuestion(bytes32 question_id, uint32 opening_ts, bool finalized, bytes32 finalAnswer)
     public payable returns (bytes32) {
         questions[question_id].opening_ts = opening_ts;
