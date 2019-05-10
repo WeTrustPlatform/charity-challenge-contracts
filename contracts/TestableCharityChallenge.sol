@@ -8,12 +8,14 @@ contract TestableCharityChallenge is CharityChallenge {
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
         address _marketAddress,
+        bytes32 _questionId,
         bool _unlockOnNo
     ) CharityChallenge(
         _contractOwner,
         _npoAddresses,
         _ratios,
         _marketAddress,
+        _questionId,
         _unlockOnNo
     ) public {}
 

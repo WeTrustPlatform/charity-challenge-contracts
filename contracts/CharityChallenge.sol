@@ -84,7 +84,7 @@ contract CharityChallenge {
         questionId = _questionId;
         realityCheck = IRealityCheck(_marketAddress);
         unlockOnNo = _unlockOnNo;
-        challengeEndTime = market.getEndTime();
+        challengeEndTime = 0 // FIXME;
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
         isEventFinalized = false;
@@ -169,25 +169,6 @@ contract CharityChallenge {
         safetyHatchClaimSucceeded = true;
         contractOwner.transfer(address(this).balance);
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
-    }
-
-    function checkAugur() private view returns (bool happened, bool errored) {
-        if (market.isFinalized()) {
-            if (market.isInvalid()) {
-                // Treat 'invalid' outcome as 'no'
-                // because 'invalid' is one of the valid outcomes
-                return (false, false);
-            } else {
-                uint256 no = market.getWinningPayoutNumerator(0);
-                uint256 yes = market.getWinningPayoutNumerator(1);
-                if (unlockOnNo) {
-                    return (yes < no, false);
-                }
-                return (yes > no, false);
-            }
-        } else {
-            return (false, true);
-        }
     }
 
     function checkRealitio() private view returns (bool happened, bool errored) {
