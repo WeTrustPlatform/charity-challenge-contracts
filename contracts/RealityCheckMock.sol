@@ -3,30 +3,41 @@ pragma solidity ^0.5.0;
 import "./IRealityCheck.sol";
 
 contract RealityCheckMock is IRealityCheck {
-    bool finalized;
-    bool invalid;
-    bytes32 finalAnswer;
+    struct Question {
+        uint32 opening_ts;
+        bool finalized;
+        bytes32 finalAnswer;
+    }
+
+    mapping(bytes32 => Question) public questions;
 
     constructor() public {
     }
 
     function isFinalized(bytes32 question_id) public view returns (bool) {
-        return finalized;
+        return questions[question_id].finalized;
     }
 
     function getFinalAnswer(bytes32 question_id) public view returns (bytes32) {
-        return finalAnswer;
-    }
-    
-    function setFinalized(bool _finalized) public {
-        finalized = _finalized;
+        return questions[question_id].finalAnswer;
     }
 
-    function setInvalid(bool _invalid) public {
-        invalid = _invalid;
+    function addQuestion(bytes32 question_id, uint32 opening_ts, bool finalized, bytes32 finalAnswer)
+    public payable returns (bytes32) {
+        questions[question_id].opening_ts = opening_ts;
+        questions[question_id].finalized = finalized;
+        questions[question_id].finalAnswer = finalAnswer;
     }
 
-    function setFinalAnswer(bytes32 _finalAnswer) public {
-        finalAnswer = _finalAnswer;
+    function setOpeningTs(bytes32 question_id, uint32 opening_ts) public {
+        questions[question_id].opening_ts = opening_ts;
+    }
+
+    function setFinalized(bytes32 question_id, bool finalized) public {
+        questions[question_id].finalized = finalized;
+    }
+
+    function setFinalAnswer(bytes32 question_id, bytes32 finalAnswer) public {
+        questions[question_id].finalAnswer = finalAnswer;
     }
 }
