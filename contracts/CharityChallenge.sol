@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./IMarket.sol";
+import "./IRealityCheck.sol";
 
 contract CharityChallenge {
 
@@ -28,6 +29,10 @@ contract CharityChallenge {
     bool public unlockOnNo;
 
     IMarket market;
+
+    IRealityCheck realityCheck;
+
+    bytes32 public questionId;
 
     uint256 public challengeEndTime;
 
@@ -61,6 +66,7 @@ contract CharityChallenge {
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
         address _marketAddress,
+        bytes32 _questionId,
         bool _unlockOnNo
     ) public
     {
@@ -75,7 +81,8 @@ contract CharityChallenge {
         }
         contractOwner = _contractOwner;
         marketAddress = _marketAddress;
-        market = IMarket(_marketAddress);
+        questionId = _questionId;
+        realityCheck = IRealityCheck(_marketAddress);
         unlockOnNo = _unlockOnNo;
         challengeEndTime = market.getEndTime();
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
@@ -110,7 +117,7 @@ contract CharityChallenge {
 
     function doFinalize() private {
         bool hasError;
-        (hasChallengeAccomplished, hasError) = checkAugur();
+        (hasChallengeAccomplished, hasError) = checkRealitio();
         if (!hasError) {
             isEventFinalized = true;
             if (hasChallengeAccomplished) {
@@ -178,6 +185,18 @@ contract CharityChallenge {
                 }
                 return (yes > no, false);
             }
+        } else {
+            return (false, true);
+        }
+    }
+
+    function checkRealitio() private view returns (bool happened, bool errored) {
+        if (realityCheck.isFinalized(questionId)) {
+            bytes32 answer = realityCheck.getFinalAnswer(questionId);
+            if (unlockOnNo) {
+                return (answer == 0x0000000000000000000000000000000000000000000000000000000000000000, false);
+            }
+            return (answer == 0x0000000000000000000000000000000000000000000000000000000000000001, false);
         } else {
             return (false, true);
         }
