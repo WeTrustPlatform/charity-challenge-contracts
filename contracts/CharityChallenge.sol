@@ -174,10 +174,16 @@ contract CharityChallenge {
     function checkRealitio() private view returns (bool happened, bool errored) {
         if (realityCheck.isFinalized(questionId)) {
             bytes32 answer = realityCheck.getFinalAnswer(questionId);
-            if (unlockOnNo) {
-                return (answer == 0x0000000000000000000000000000000000000000000000000000000000000000, false);
+            if (answer == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
+                // Treat 'invalid' outcome as 'no'
+                // because 'invalid' is one of the valid outcomes
+                return (false, false);
+            } else {
+                if (unlockOnNo) {
+                    return (answer == 0x0000000000000000000000000000000000000000000000000000000000000000, false);
+                }
+                return (answer == 0x0000000000000000000000000000000000000000000000000000000000000001, false);
             }
-            return (answer == 0x0000000000000000000000000000000000000000000000000000000000000001, false);
         } else {
             return (false, true);
         }
