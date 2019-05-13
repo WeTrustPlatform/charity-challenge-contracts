@@ -1,6 +1,5 @@
 pragma solidity ^0.5.0;
 
-import "./IMarket.sol";
 import "./IRealityCheck.sol";
 
 contract CharityChallenge {
@@ -27,8 +26,6 @@ contract CharityChallenge {
     address public marketAddress;
 
     bool public unlockOnNo;
-
-    IMarket market;
 
     IRealityCheck realityCheck;
 
