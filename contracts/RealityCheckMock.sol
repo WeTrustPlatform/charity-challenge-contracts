@@ -18,7 +18,7 @@ contract RealityCheckMock is IRealityCheck {
         uint256 template_id, string memory question,
         address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce) public returns (bytes32) {
 
-        return 0;
+        return 0xafffceb5788b34ac2ad5f638db53a805bd98419d3a1f00066d4357657736c9be;
     }
 
     function isFinalized(bytes32 question_id) public view returns (bool) {
