@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 // RealityCheck API used to interract with realit.io, we only need to describe the
 // functions we'll be using.
