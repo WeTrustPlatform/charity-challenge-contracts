@@ -40,10 +40,6 @@ contract RealityCheckMock is IRealityCheck {
         questions[question_id].finalAnswer = finalAnswer;
     }
 
-    function setOpeningTS(bytes32 question_id, uint32 opening_ts) public {
-        questions[question_id].opening_ts = opening_ts;
-    }
-
     function setFinalized(bytes32 question_id, bool finalized) public {
         questions[question_id].finalized = finalized;
     }
