@@ -29,6 +29,12 @@ contract CharityChallenge {
 
     IRealityCheck realityCheck;
 
+    string public question;
+
+    address public arbitrator;
+
+    uint256 public timeout;
+
     bytes32 public questionId;
 
     uint256 public challengeEndTime;
@@ -63,7 +69,10 @@ contract CharityChallenge {
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
         address _marketAddress,
-        bytes32 _questionId,
+        string memory _question,
+        address _arbitrator,
+        uint256 _timeout,
+        uint256 _challengeEndTime,
         bool _unlockOnNo
     ) public
     {
@@ -78,10 +87,13 @@ contract CharityChallenge {
         }
         contractOwner = _contractOwner;
         marketAddress = _marketAddress;
-        questionId = _questionId;
         realityCheck = IRealityCheck(_marketAddress);
+        question = _question;
+        arbitrator = _arbitrator;
+        timeout = _timeout;
+        challengeEndTime = _challengeEndTime;
+        questionId = realityCheck.askQuestion(0, question, arbitrator, uint32(timeout), uint32(challengeEndTime), 0);
         unlockOnNo = _unlockOnNo;
-        challengeEndTime = realityCheck.getOpeningTS(questionId);
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
         isEventFinalized = false;

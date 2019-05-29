@@ -5,27 +5,27 @@ const TestableCharityChallenge = artifacts.require('TestableCharityChallenge.sol
 const RealityCheckMock = artifacts.require('RealityCheckMock.sol')
 const utils = require('./utils')
 
-const newSingleNPOChallengeContract = (contractAddr, npoAddr, marketAddr, questionId) => {
+const newSingleNPOChallengeContract = (contractAddr, npoAddr, marketAddr, question, arbitrator, timeout, endTime) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, questionId, false)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, false)
 }
 
-const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketAddr, questionId) => {
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, questionId, false)
+const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime) => {
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, false)
 }
 
-const newSingleNPOChallengeOption2Contract = (contractAddr, npoAddr, marketAddr, questionId) => {
+const newSingleNPOChallengeOption2Contract = (contractAddr, npoAddr, marketAddr, question, arbitrator, timeout, endTime) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, questionId, true)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, true)
 }
 
 contract('TestableCharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
   const CHAINSAFE_NPO_ADDRESS = accounts[3]
-  const QID = "0xafffceb5788b34ac2ad5f638db53a805bd98419d3a1f00066d4357657736c9be"
+  const ARBITRATOR_ADDRESS = accounts[4]
   const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
   const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
   const CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
@@ -40,13 +40,15 @@ contract('TestableCharityChallenge', (accounts) => {
 
   beforeEach(async () => {
     marketMock = await RealityCheckMock.new()
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
 
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID,
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE
     )
   })
 

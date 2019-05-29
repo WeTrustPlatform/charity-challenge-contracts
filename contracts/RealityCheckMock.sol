@@ -14,6 +14,13 @@ contract RealityCheckMock is IRealityCheck {
     constructor() public {
     }
 
+    function askQuestion(
+        uint256 template_id, string memory question,
+        address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce) public returns (bytes32) {
+
+        return 0;
+    }
+
     function isFinalized(bytes32 question_id) public view returns (bool) {
         return questions[question_id].finalized;
     }

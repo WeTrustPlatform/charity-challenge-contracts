@@ -8,14 +8,20 @@ contract TestableCharityChallenge is CharityChallenge {
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
         address _marketAddress,
-        bytes32 _questionId,
+        string memory _question,
+        address _arbitrator,
+        uint256 _timeout,
+        uint256 _challengeEndTime,
         bool _unlockOnNo
     ) CharityChallenge(
         _contractOwner,
         _npoAddresses,
         _ratios,
         _marketAddress,
-        _questionId,
+        _question,
+        _arbitrator,
+        _timeout,
+        _challengeEndTime,
         _unlockOnNo
     ) public {}
 
