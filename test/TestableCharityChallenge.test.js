@@ -26,7 +26,6 @@ contract('TestableCharityChallenge', (accounts) => {
   const RAINFOREST_NPO_ADDRESS = accounts[2]
   const CHAINSAFE_NPO_ADDRESS = accounts[3]
   const ARBITRATOR_ADDRESS = accounts[4]
-  const QID = "0xafffceb5788b34ac2ad5f638db53a805bd98419d3a1f00066d4357657736c9be"
   const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
   const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
   const CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
@@ -176,6 +175,8 @@ contract('TestableCharityChallenge', (accounts) => {
       ARBITRATOR_ADDRESS,
       CHALLENGE_END_TIME_IN_THE_PAST,
       CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -195,6 +196,8 @@ contract('TestableCharityChallenge', (accounts) => {
         ARBITRATOR_ADDRESS,
         CHALLENGE_END_TIME_IN_THE_PAST,
         CHALLENGE_END_TIME_IN_THE_PAST)
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, false)
       await charityChallengeContract.finalize({ from: DONOR_A })
 
@@ -217,6 +220,8 @@ contract('TestableCharityChallenge', (accounts) => {
       ARBITRATOR_ADDRESS,
       CHALLENGE_END_TIME_IN_THE_PAST,
       CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
@@ -236,6 +241,8 @@ contract('TestableCharityChallenge', (accounts) => {
       ARBITRATOR_ADDRESS,
       CHALLENGE_END_TIME_IN_THE_PAST,
       CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
@@ -278,6 +285,8 @@ contract('TestableCharityChallenge', (accounts) => {
       { value: web3.utils.toWei('2', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -308,6 +317,8 @@ contract('TestableCharityChallenge', (accounts) => {
       { value: web3.utils.toWei('2', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -336,6 +347,8 @@ contract('TestableCharityChallenge', (accounts) => {
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
     await charityChallengeContract.finalize({ from: DONOR_B })
@@ -363,6 +376,8 @@ contract('TestableCharityChallenge', (accounts) => {
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
     await charityChallengeContract.finalize({ from: DONOR_B })
@@ -390,6 +405,8 @@ contract('TestableCharityChallenge', (accounts) => {
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
     await charityChallengeContract.finalize({ from: DONOR_B })
@@ -618,6 +635,8 @@ contract('TestableCharityChallenge', (accounts) => {
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -645,6 +664,8 @@ contract('TestableCharityChallenge', (accounts) => {
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -671,6 +692,8 @@ contract('TestableCharityChallenge', (accounts) => {
         CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -706,6 +729,8 @@ contract('TestableCharityChallenge', (accounts) => {
       ARBITRATOR_ADDRESS,
       CHALLENGE_END_TIME_IN_THE_PAST,
       CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -769,6 +794,8 @@ contract('TestableCharityChallenge', (accounts) => {
 
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     const result = await charityChallengeContract.finalize({ from: DONOR_A })
