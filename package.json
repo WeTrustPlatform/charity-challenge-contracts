@@ -23,6 +23,7 @@
     "ethlint": "^1.2.3"
   },
   "dependencies": {
+    "solc": "^0.5.2",
     "truffle": "5.0.4"
   }
 }

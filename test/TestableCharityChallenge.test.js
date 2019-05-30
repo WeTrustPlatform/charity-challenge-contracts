@@ -5,27 +5,27 @@ const TestableCharityChallenge = artifacts.require('TestableCharityChallenge.sol
 const RealityCheckMock = artifacts.require('RealityCheckMock.sol')
 const utils = require('./utils')
 
-const newSingleNPOChallengeContract = (contractAddr, npoAddr, marketAddr, questionId) => {
+const newSingleNPOChallengeContract = (contractAddr, npoAddr, marketAddr, question, arbitrator, timeout, endTime) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, questionId, false)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, false)
 }
 
-const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketAddr, questionId) => {
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, questionId, false)
+const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime) => {
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, false)
 }
 
-const newSingleNPOChallengeOption2Contract = (contractAddr, npoAddr, marketAddr, questionId) => {
+const newSingleNPOChallengeOption2Contract = (contractAddr, npoAddr, marketAddr, question, arbitrator, timeout, endTime) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, questionId, true)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, true)
 }
 
 contract('TestableCharityChallenge', (accounts) => {
   const CONTRACT_OWNER = accounts[1]
   const RAINFOREST_NPO_ADDRESS = accounts[2]
   const CHAINSAFE_NPO_ADDRESS = accounts[3]
-  const QID = "0xafffceb5788b34ac2ad5f638db53a805bd98419d3a1f00066d4357657736c9be"
+  const ARBITRATOR_ADDRESS = accounts[4]
   const CHALLENGE_END_TIME_IN_THE_FUTURE = Math.floor(Date.now() / 1000) + 100 // 100s in the future
   const CHALLENGE_END_TIME_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
   const CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST = Math.floor(Date.now() / 1000) - 100 // 100s in the past
@@ -40,13 +40,15 @@ contract('TestableCharityChallenge', (accounts) => {
 
   beforeEach(async () => {
     marketMock = await RealityCheckMock.new()
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
 
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID,
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE
     )
   })
 
@@ -146,12 +148,14 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should throw if DONOR_A sends money into contract after challenge end time', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
 
     await utils.assertRevert(charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('1', 'ether'), from: DONOR_A }
@@ -163,12 +167,16 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should throw if finalize is called the second time after market is finalized', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -180,12 +188,16 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should set challenge accomplished to true if finalize is called the second time after market is finalized',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_PAST,
+        CHALLENGE_END_TIME_IN_THE_PAST)
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, false)
       await charityChallengeContract.finalize({ from: DONOR_A })
 
@@ -200,12 +212,16 @@ contract('TestableCharityChallenge', (accounts) => {
     })
 
   it('should set challenge accomplished to FALSE if market is finalized and its outcome is INVALID', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
@@ -217,12 +233,16 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should set challenge accomplished to FALSE if market is finalized and its outcome is INVALID, even when using unlockOnNo', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeOption2Contract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
@@ -234,12 +254,14 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should throw if finalize is called after safety hatch 1 time', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
     await charityChallengeContract.setChallengeSafetyHatchTime1(
       CHALLENGE_SAFETY_HATCH_1_IN_THE_PAST, { from: CONTRACT_OWNER })
 
@@ -249,18 +271,22 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should send money to npo address if augur market is YES', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('1', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('2', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -277,18 +303,22 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should send money to npo address if augur market is NO', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeOption2Contract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('1', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('2', 'ether'), from: DONOR_B })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -305,16 +335,20 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should allow DONOR_A to claim 5 ETH if he has donated 5 ETH and challenge is not accomplished', async () => {
     const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
     await charityChallengeContract.finalize({ from: DONOR_B })
@@ -330,16 +364,20 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should allow donor to claim if challenge is invalid (Option 1)', async () => {
     const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
     await charityChallengeContract.finalize({ from: DONOR_B })
@@ -355,16 +393,20 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should allow donor to claim if challenge is invalid (Option 2)', async () => {
     const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeOption2Contract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
     await charityChallengeContract.finalize({ from: DONOR_B })
@@ -382,12 +424,14 @@ contract('TestableCharityChallenge', (accounts) => {
     'should allow DONOR_A to claim 5 ETH if he has donated 5 ETH after safety hatch 1 time even thou finalize has never been called',
     async () => {
       const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
@@ -408,12 +452,14 @@ contract('TestableCharityChallenge', (accounts) => {
     'should allow DONOR_A to claim 5 ETH after safety hatch 2 time',
     async () => {
       const DONOR_A_INITIAL_BALANCE = await web3.eth.getBalance(DONOR_A)
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(
@@ -434,12 +480,14 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should allow contract owner to claim total contract balance of 5 ETH', async () => {
     const CONTRACT_OWNER_INITIAL_BALANCE = await web3.eth.getBalance(CONTRACT_OWNER)
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
     await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
     await charityChallengeContract.sendTransaction(
@@ -465,12 +513,14 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should return zero balance of DONOR_A, DONOR_B, DONOR_C in the contract when contract owner calls safety hatch claim after safety hatch 2',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -498,12 +548,14 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should emit SafetyHatchClaimed event when contract owner claims total contract balance after safety hatch time 2',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -523,12 +575,14 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should throw if it is not the contract owner who calls safety hatch claim after safety hatch time 2',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -545,12 +599,14 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should throw if contract owner calls safety hatch claim before safety hatch time 2',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('2', 'ether'), from: DONOR_A })
       await charityChallengeContract.sendTransaction(
@@ -567,16 +623,20 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should emit Claimed event after DONOR_A claims the money',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -592,16 +652,20 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should return balance of DONOR_A as zero after DONOR_A has claimed',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.sendTransaction(
         { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
       await charityChallengeContract.setChallengeEndTime(CHALLENGE_END_TIME_IN_THE_PAST,
         { from: CONTRACT_OWNER })
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -618,14 +682,18 @@ contract('TestableCharityChallenge', (accounts) => {
   it(
     'should throw if DONOR_A is trying to claim money he has never donated',
     async () => {
-      await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
       charityChallengeContract = await newSingleNPOChallengeContract(
         CONTRACT_OWNER,
         RAINFOREST_NPO_ADDRESS,
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_FUTURE,
+        CHALLENGE_END_TIME_IN_THE_FUTURE)
       await charityChallengeContract.setChallengeEndTime(
         CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+      const QID = await charityChallengeContract.questionId()
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
@@ -640,23 +708,29 @@ contract('TestableCharityChallenge', (accounts) => {
   })
 
   it('should throw if DONOR_A call claims before finalize method is called', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
 
     await utils.assertRevert(charityChallengeContract.claim({ from: DONOR_A }))
   })
 
   it('should throw if DONOR_A call claims when challenge has accomplished', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_PAST)
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_PAST,
+      CHALLENGE_END_TIME_IN_THE_PAST)
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     await charityChallengeContract.finalize({ from: DONOR_A })
@@ -671,18 +745,23 @@ contract('TestableCharityChallenge', (accounts) => {
         [RAINFOREST_NPO_ADDRESS],
         [1, 1],
         marketMock.address,
-        QID)
+        "question",
+        ARBITRATOR_ADDRESS,
+        CHALLENGE_END_TIME_IN_THE_PAST,
+        CHALLENGE_END_TIME_IN_THE_PAST)
     )
   })
 
   it('should create contract with multiple npos successfully', async () => {
-    await marketMock.setOpeningTS(QID, CHALLENGE_END_TIME_IN_THE_FUTURE)
     charityChallengeContract = await newMultiplNPOsChallengeContract(
       CONTRACT_OWNER,
       [RAINFOREST_NPO_ADDRESS, CHAINSAFE_NPO_ADDRESS],
       [2, 1],
       marketMock.address,
-      QID)
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE)
 
     assert.equal(CONTRACT_OWNER, await charityChallengeContract.contractOwner())
     assert.equal(RAINFOREST_NPO_ADDRESS, await charityChallengeContract.npoAddresses(0))
@@ -715,6 +794,8 @@ contract('TestableCharityChallenge', (accounts) => {
 
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
     await marketMock.setFinalized(QID, true)
     await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
     const result = await charityChallengeContract.finalize({ from: DONOR_A })

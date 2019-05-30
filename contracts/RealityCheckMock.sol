@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "./IRealityCheck.sol";
 
@@ -12,6 +12,13 @@ contract RealityCheckMock is IRealityCheck {
     mapping(bytes32 => Question) public questions;
 
     constructor() public {
+    }
+
+    function askQuestion(
+        uint256 template_id, string memory question,
+        address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce) public returns (bytes32) {
+
+        return 0xafffceb5788b34ac2ad5f638db53a805bd98419d3a1f00066d4357657736c9be;
     }
 
     function isFinalized(bytes32 question_id) public view returns (bool) {
@@ -31,10 +38,6 @@ contract RealityCheckMock is IRealityCheck {
         questions[question_id].opening_ts = opening_ts;
         questions[question_id].finalized = finalized;
         questions[question_id].finalAnswer = finalAnswer;
-    }
-
-    function setOpeningTS(bytes32 question_id, uint32 opening_ts) public {
-        questions[question_id].opening_ts = opening_ts;
     }
 
     function setFinalized(bytes32 question_id, bool finalized) public {
