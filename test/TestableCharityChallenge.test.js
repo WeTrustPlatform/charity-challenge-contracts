@@ -804,20 +804,8 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('Donated', result.logs[0].event)
     assert.equal('Donated', result.logs[1].event)
     
-    const newRainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    let donatedAmount = 
-      parseFloat(
-        web3.utils.fromWei(newRainForestBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(RAINFOREST_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('3.33', donatedAmount.toString().substring(0, 4))
-    const newChainSafeBalance = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
-    donatedAmount = 
-      parseFloat(
-        web3.utils.fromWei(newChainSafeBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(CHAINSAFE_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('1.66', donatedAmount.toString().substring(0, 4))
+    assert.equal('3333333333333333333', result.logs[0].args[1].toString())
+    assert.equal('1666666666666666667', result.logs[1].args[1].toString())
   })
 
   it('should create donate the maker fee properly', async () => {
@@ -851,18 +839,13 @@ contract('TestableCharityChallenge', (accounts) => {
     // should get correct expected amount
     const expectedRainForestAmountWei = await charityChallengeContract.getExpectedDonationAmount(RAINFOREST_NPO_ADDRESS);
     const expectedRainForestAmount = parseFloat(web3.utils.fromWei(expectedRainForestAmountWei.toString(), 'ether'));
-    assert.equal('2.66', expectedRainForestAmount.toString().substring(0, 4));
+    assert.equal('2.6666', expectedRainForestAmount.toString().substring(0, 6));
 
     const expectedChainSafeAmountWei = await charityChallengeContract.getExpectedDonationAmount(CHAINSAFE_NPO_ADDRESS);
     const expectedChainSafeAmount = parseFloat(web3.utils.fromWei(expectedChainSafeAmountWei.toString(), 'ether'));
-    assert.equal('1.33', expectedChainSafeAmount.toString().substring(0, 4));
+    assert.equal('1.3333', expectedChainSafeAmount.toString().substring(0, 6));
 
     await utils.assertRevert(charityChallengeContract.getExpectedDonationAmount(CONTRACT_OWNER))
-
-    // should donate correct amount to ratios
-    const MAKER_INITIAL_BALANCE = await web3.eth.getBalance(CONTRACT_OWNER)
-    const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    const CHAINSAFE_NPO_INITIAL_BALANCE = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
 
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
@@ -875,27 +858,9 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('Donated', result.logs[1].event)
     assert.equal('Donated', result.logs[2].event)
 
-    const newMakerBalance = await web3.eth.getBalance(CONTRACT_OWNER)
-    let feeAmount =
-      parseFloat(
-        web3.utils.fromWei(newMakerBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(MAKER_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('0.99', feeAmount.toString().substring(0, 4))
-    const newRainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    let donatedAmount = 
-      parseFloat(
-        web3.utils.fromWei(newRainForestBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(RAINFOREST_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('2.66', donatedAmount.toString().substring(0, 4))
-    const newChainSafeBalance = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
-    donatedAmount = 
-      parseFloat(
-        web3.utils.fromWei(newChainSafeBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(CHAINSAFE_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('1.33', donatedAmount.toString().substring(0, 4))
+    assert.equal('1000000000000000000', result.logs[0].args[1].toString())
+    assert.equal('2666666666666666666', result.logs[1].args[1].toString())
+    assert.equal('1333333333333333334', result.logs[2].args[1].toString())
   })
 
   // it('should allow donors to donate multiple-npo contract', async () => {
