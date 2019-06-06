@@ -851,11 +851,11 @@ contract('TestableCharityChallenge', (accounts) => {
     // should get correct expected amount
     const expectedRainForestAmountWei = await charityChallengeContract.getExpectedDonationAmount(RAINFOREST_NPO_ADDRESS);
     const expectedRainForestAmount = parseFloat(web3.utils.fromWei(expectedRainForestAmountWei.toString(), 'ether'));
-    assert.equal('3.33', expectedRainForestAmount.toString().substring(0, 4));
+    assert.equal('2.66', expectedRainForestAmount.toString().substring(0, 4));
 
     const expectedChainSafeAmountWei = await charityChallengeContract.getExpectedDonationAmount(CHAINSAFE_NPO_ADDRESS);
     const expectedChainSafeAmount = parseFloat(web3.utils.fromWei(expectedChainSafeAmountWei.toString(), 'ether'));
-    assert.equal('1.66', expectedChainSafeAmount.toString().substring(0, 4));
+    assert.equal('1.33', expectedChainSafeAmount.toString().substring(0, 4));
 
     await utils.assertRevert(charityChallengeContract.getExpectedDonationAmount(CONTRACT_OWNER))
 
@@ -881,21 +881,21 @@ contract('TestableCharityChallenge', (accounts) => {
         web3.utils.fromWei(newMakerBalance.toString(), 'ether')) -
       parseFloat(
         web3.utils.fromWei(MAKER_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('0.9994', feeAmount.toString().substring(0, 6))
+    assert.equal('0.99', feeAmount.toString().substring(0, 4))
     const newRainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
     let donatedAmount = 
       parseFloat(
         web3.utils.fromWei(newRainForestBalance.toString(), 'ether')) -
       parseFloat(
         web3.utils.fromWei(RAINFOREST_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('2.6666', donatedAmount.toString().substring(0, 6))
+    assert.equal('2.66', donatedAmount.toString().substring(0, 4))
     const newChainSafeBalance = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
     donatedAmount = 
       parseFloat(
         web3.utils.fromWei(newChainSafeBalance.toString(), 'ether')) -
       parseFloat(
         web3.utils.fromWei(CHAINSAFE_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('1.3314', donatedAmount.toString().substring(0, 6))
+    assert.equal('1.33', donatedAmount.toString().substring(0, 4))
   })
 
   // it('should allow donors to donate multiple-npo contract', async () => {

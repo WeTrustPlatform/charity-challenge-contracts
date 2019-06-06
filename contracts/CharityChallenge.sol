@@ -166,8 +166,9 @@ contract CharityChallenge {
     function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
         require(npoRatios[_npo] > 0);
         uint256 totalContractBalance = address(this).balance;
+        uint256 amountForNPO = totalContractBalance - (totalContractBalance * makerFee / 100);
         uint8 ratio = npoRatios[_npo];
-        uint256 amount = totalContractBalance * ratio / sumRatio;
+        uint256 amount = amountForNPO * ratio / sumRatio;
         return amount;
     }
 
