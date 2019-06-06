@@ -744,7 +744,7 @@ contract('TestableCharityChallenge', (accounts) => {
         "question",
         ARBITRATOR_ADDRESS,
         CHALLENGE_END_TIME_IN_THE_PAST,
-				CHALLENGE_END_TIME_IN_THE_PAST,
+        CHALLENGE_END_TIME_IN_THE_PAST,
         0,
         false
       )
