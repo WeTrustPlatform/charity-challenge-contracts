@@ -82,6 +82,7 @@ contract CharityChallenge {
     ) public
     {
         require(_npoAddresses.length == _ratios.length);
+        require(_makerFee < 100);
         uint length = _npoAddresses.length;
         for (uint i = 0; i < length; i++) {
             address payable npo = _npoAddresses[i];
