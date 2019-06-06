@@ -12,6 +12,7 @@ contract TestableCharityChallenge is CharityChallenge {
         address _arbitrator,
         uint256 _timeout,
         uint256 _challengeEndTime,
+        uint8 _makerFee,
         bool _unlockOnNo
     ) CharityChallenge(
         _contractOwner,
@@ -22,6 +23,7 @@ contract TestableCharityChallenge is CharityChallenge {
         _arbitrator,
         _timeout,
         _challengeEndTime,
+        _makerFee,
         _unlockOnNo
     ) public {}
 

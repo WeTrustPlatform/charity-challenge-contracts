@@ -8,6 +8,8 @@ contract CharityChallenge {
 
     event Donated(address indexed npo, uint256 value);
 
+    event Fee(address indexed maker, uint256 value);
+
     event Claimed(address indexed claimer, uint256 value);
 
     event SafetyHatchClaimed(address indexed claimer, uint256 value);
@@ -38,6 +40,8 @@ contract CharityChallenge {
     bytes32 public questionId;
 
     uint256 public challengeEndTime;
+
+    uint8 public makerFee;
 
     uint256 public challengeSafetyHatchTime1;
 
@@ -73,6 +77,7 @@ contract CharityChallenge {
         address _arbitrator,
         uint256 _timeout,
         uint256 _challengeEndTime,
+        uint8 _makerFee,
         bool _unlockOnNo
     ) public
     {
@@ -92,6 +97,7 @@ contract CharityChallenge {
         arbitrator = _arbitrator;
         timeout = _timeout;
         challengeEndTime = _challengeEndTime;
+        makerFee = _makerFee;
         questionId = realityCheck.askQuestion(0, question, arbitrator, uint32(timeout), uint32(challengeEndTime), 0);
         unlockOnNo = _unlockOnNo;
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
@@ -133,10 +139,17 @@ contract CharityChallenge {
                 uint256 totalContractBalance = address(this).balance;
                 uint length = npoAddresses.length;
                 uint256 donatedAmount = 0;
+                if (makerFee > 0) {
+                    uint256 amount = totalContractBalance * makerFee / 100;
+                    donatedAmount += amount;
+                    contractOwner.transfer(amount);
+                    emit Fee(contractOwner, amount);
+                }
+                uint256 amountForNPO = totalContractBalance - donatedAmount;
                 for (uint i = 0; i < length - 1; i++) {
                     address payable npo = npoAddresses[i];
                     uint8 ratio = npoRatios[npo];
-                    uint256 amount = totalContractBalance * ratio / sumRatio;
+                    uint256 amount = amountForNPO * ratio / sumRatio;
                     donatedAmount += amount;
                     npo.transfer(amount);
                     emit Donated(npo, amount);
