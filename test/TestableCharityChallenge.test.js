@@ -8,17 +8,13 @@ const utils = require('./utils')
 const newSingleNPOChallengeContract = (contractAddr, npoAddr, marketAddr, question, arbitrator, timeout, endTime) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, false)
-}
-
-const newMultiplNPOsChallengeContract = (contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime) => {
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, false)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, 0, false)
 }
 
 const newSingleNPOChallengeOption2Contract = (contractAddr, npoAddr, marketAddr, question, arbitrator, timeout, endTime) => {
   const npoAddrs = [npoAddr]
   const ratios = [1]
-  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, true)
+  return TestableCharityChallenge.new(contractAddr, npoAddrs, ratios, marketAddr, question, arbitrator, timeout, endTime, 0, true)
 }
 
 contract('TestableCharityChallenge', (accounts) => {
@@ -740,7 +736,7 @@ contract('TestableCharityChallenge', (accounts) => {
 
   it('should throw if length of npos is not the same to length of ratios', async () => {
     await utils.assertRevert(
-      charityChallengeContract = newMultiplNPOsChallengeContract(
+      charityChallengeContract = TestableCharityChallenge.new(
         CONTRACT_OWNER,
         [RAINFOREST_NPO_ADDRESS],
         [1, 1],
@@ -748,12 +744,15 @@ contract('TestableCharityChallenge', (accounts) => {
         "question",
         ARBITRATOR_ADDRESS,
         CHALLENGE_END_TIME_IN_THE_PAST,
-        CHALLENGE_END_TIME_IN_THE_PAST)
+        CHALLENGE_END_TIME_IN_THE_PAST,
+        0,
+        false
+      )
     )
   })
 
   it('should create contract with multiple npos successfully', async () => {
-    charityChallengeContract = await newMultiplNPOsChallengeContract(
+    charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       [RAINFOREST_NPO_ADDRESS, CHAINSAFE_NPO_ADDRESS],
       [2, 1],
@@ -761,7 +760,10 @@ contract('TestableCharityChallenge', (accounts) => {
       "question",
       ARBITRATOR_ADDRESS,
       CHALLENGE_END_TIME_IN_THE_FUTURE,
-      CHALLENGE_END_TIME_IN_THE_FUTURE)
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      0,
+      false
+    )
 
     assert.equal(CONTRACT_OWNER, await charityChallengeContract.contractOwner())
     assert.equal(RAINFOREST_NPO_ADDRESS, await charityChallengeContract.npoAddresses(0))
@@ -802,20 +804,63 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('Donated', result.logs[0].event)
     assert.equal('Donated', result.logs[1].event)
     
-    const newRainForestBalance = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    let donatedAmount = 
-      parseFloat(
-        web3.utils.fromWei(newRainForestBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(RAINFOREST_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('3.33', donatedAmount.toString().substring(0, 4))
-    const newChainSafeBalance = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
-    donatedAmount = 
-      parseFloat(
-        web3.utils.fromWei(newChainSafeBalance.toString(), 'ether')) -
-      parseFloat(
-        web3.utils.fromWei(CHAINSAFE_NPO_INITIAL_BALANCE.toString(), 'ether'))
-    assert.equal('1.66', donatedAmount.toString().substring(0, 4))
+    assert.equal('3333333333333333333', result.logs[0].args[1].toString())
+    assert.equal('1666666666666666667', result.logs[1].args[1].toString())
+  })
+
+  it('should create donate the maker fee properly', async () => {
+    charityChallengeContract = await TestableCharityChallenge.new(
+      CONTRACT_OWNER,
+      [RAINFOREST_NPO_ADDRESS, CHAINSAFE_NPO_ADDRESS],
+      [2, 1],
+      marketMock.address,
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      20,
+      false
+    )
+
+    assert.equal(CONTRACT_OWNER, await charityChallengeContract.contractOwner())
+    assert.equal(RAINFOREST_NPO_ADDRESS, await charityChallengeContract.npoAddresses(0))
+    assert.equal(CHAINSAFE_NPO_ADDRESS, await charityChallengeContract.npoAddresses(1))
+    assert.equal(2, await charityChallengeContract.npoRatios(RAINFOREST_NPO_ADDRESS))
+    assert.equal(1, await charityChallengeContract.npoRatios(CHAINSAFE_NPO_ADDRESS))
+
+    // should allow donors to donate multiple-npo contract
+    await charityChallengeContract.sendTransaction(
+      { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
+
+    const balance = await web3.eth.getBalance(charityChallengeContract.address)
+    assert.equal(5, parseInt(
+      web3.utils.fromWei(balance.toString(), 'ether')) )
+
+    // should get correct expected amount
+    const expectedRainForestAmountWei = await charityChallengeContract.getExpectedDonationAmount(RAINFOREST_NPO_ADDRESS);
+    const expectedRainForestAmount = parseFloat(web3.utils.fromWei(expectedRainForestAmountWei.toString(), 'ether'));
+    assert.equal('2.6666', expectedRainForestAmount.toString().substring(0, 6));
+
+    const expectedChainSafeAmountWei = await charityChallengeContract.getExpectedDonationAmount(CHAINSAFE_NPO_ADDRESS);
+    const expectedChainSafeAmount = parseFloat(web3.utils.fromWei(expectedChainSafeAmountWei.toString(), 'ether'));
+    assert.equal('1.3333', expectedChainSafeAmount.toString().substring(0, 6));
+
+    await utils.assertRevert(charityChallengeContract.getExpectedDonationAmount(CONTRACT_OWNER))
+
+    await charityChallengeContract.setChallengeEndTime(
+      CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
+    await marketMock.setFinalized(QID, true)
+    await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
+    const result = await charityChallengeContract.finalize({ from: DONOR_A })
+    assert.equal('Fee', result.logs[0].event)
+    assert.equal('Donated', result.logs[1].event)
+    assert.equal('Donated', result.logs[2].event)
+
+    assert.equal('1000000000000000000', result.logs[0].args[1].toString())
+    assert.equal('2666666666666666666', result.logs[1].args[1].toString())
+    assert.equal('1333333333333333334', result.logs[2].args[1].toString())
   })
 
   // it('should allow donors to donate multiple-npo contract', async () => {
