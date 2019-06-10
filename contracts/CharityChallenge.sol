@@ -1,8 +1,11 @@
 pragma solidity ^0.5.2;
 
 import "./IRealityCheck.sol";
+import "./SafeMath.sol";
 
 contract CharityChallenge {
+    using SafeMath for uint256;
+    using SafeMath for uint8;
 
     event Received(address indexed sender, uint256 value);
 
@@ -41,7 +44,7 @@ contract CharityChallenge {
 
     uint256 public challengeEndTime;
 
-    uint8 public makerFee;
+    uint256 public makerFee;
 
     uint256 public challengeSafetyHatchTime1;
 
@@ -77,12 +80,12 @@ contract CharityChallenge {
         address _arbitrator,
         uint256 _timeout,
         uint256 _challengeEndTime,
-        uint8 _makerFee,
+        uint256 _makerFee,
         bool _unlockOnNo
     ) public
     {
         require(_npoAddresses.length == _ratios.length);
-        require(_makerFee < 100);
+        require(makerFee < 10000);
         uint length = _npoAddresses.length;
         for (uint i = 0; i < length; i++) {
             address payable npo = _npoAddresses[i];
@@ -141,22 +144,22 @@ contract CharityChallenge {
                 uint length = npoAddresses.length;
                 uint256 donatedAmount = 0;
                 if (makerFee > 0) {
-                    uint256 amount = totalContractBalance * makerFee / 100;
-                    donatedAmount += amount;
+                    uint256 amount = totalContractBalance.mul(makerFee).div(10000);
+                    donatedAmount = donatedAmount.add(amount);
                     contractOwner.transfer(amount);
                     emit Fee(contractOwner, amount);
                 }
-                uint256 amountForNPO = totalContractBalance - donatedAmount;
+                uint256 amountForNPO = totalContractBalance.sub(donatedAmount);
                 for (uint i = 0; i < length - 1; i++) {
                     address payable npo = npoAddresses[i];
                     uint8 ratio = npoRatios[npo];
-                    uint256 amount = amountForNPO * ratio / sumRatio;
-                    donatedAmount += amount;
+                    uint256 amount = amountForNPO.mul(ratio).div(sumRatio);
+                    donatedAmount = donatedAmount.add(amount);
                     npo.transfer(amount);
                     emit Donated(npo, amount);
                 }
                 // Don't want to keep any amount in the contract
-                uint256 remainingAmount = totalContractBalance - donatedAmount;
+                uint256 remainingAmount = totalContractBalance.sub(donatedAmount);
                 address payable npo = npoAddresses[length - 1];
                 npo.transfer(remainingAmount);
                 emit Donated(npo, remainingAmount);
@@ -167,10 +170,9 @@ contract CharityChallenge {
     function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
         require(npoRatios[_npo] > 0);
         uint256 totalContractBalance = address(this).balance;
-        uint256 amountForNPO = totalContractBalance - (totalContractBalance * makerFee / 100);
+        uint256 amountForNPO = totalContractBalance.sub(totalContractBalance.mul(makerFee).div(10000));
         uint8 ratio = npoRatios[_npo];
-        uint256 amount = amountForNPO * ratio / sumRatio;
-        return amount;
+        return amountForNPO.mul(ratio).div(sumRatio);
     }
 
     function claim() nonReentrant external {

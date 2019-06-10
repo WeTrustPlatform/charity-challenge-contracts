@@ -12,7 +12,7 @@ contract TestableCharityChallenge is CharityChallenge {
         address _arbitrator,
         uint256 _timeout,
         uint256 _challengeEndTime,
-        uint8 _makerFee,
+        uint256 _makerFee,
         bool _unlockOnNo
     ) CharityChallenge(
         _contractOwner,

@@ -818,7 +818,7 @@ contract('TestableCharityChallenge', (accounts) => {
       ARBITRATOR_ADDRESS,
       CHALLENGE_END_TIME_IN_THE_FUTURE,
       CHALLENGE_END_TIME_IN_THE_FUTURE,
-      20,
+      2000, // 20%
       false
     )
 
