@@ -145,37 +145,31 @@ contract CharityChallenge {
         if (!hasError) {
             isEventFinalized = true;
             if (hasChallengeAccomplished) {
-                uint256 totalContractBalance = address(this).balance;
                 uint length = npoAddresses.length;
-                uint256 donatedAmount = 0;
                 if (makerFee > 0) {
-                    uint256 amount = totalContractBalance.mul(makerFee).div(feeDivider);
-                    donatedAmount = donatedAmount.add(amount);
+                    uint256 amount = address(this).balance.mul(makerFee).div(feeDivider);
                     contractOwner.transfer(amount);
                     emit Fee(contractOwner, amount);
                 }
-                uint256 amountForNPO = totalContractBalance.sub(donatedAmount);
                 for (uint i = 0; i < length - 1; i++) {
                     address payable npo = npoAddresses[i];
                     uint8 ratio = npoRatios[npo];
-                    uint256 amount = amountForNPO.mul(ratio).div(sumRatio);
-                    donatedAmount = donatedAmount.add(amount);
+                    uint256 amount = address(this).balance.mul(ratio).div(sumRatio);
                     npo.transfer(amount);
                     emit Donated(npo, amount);
                 }
                 // Don't want to keep any amount in the contract
-                uint256 remainingAmount = totalContractBalance.sub(donatedAmount);
+                uint256 amount = address(this).balance;
                 address payable npo = npoAddresses[length - 1];
-                npo.transfer(remainingAmount);
-                emit Donated(npo, remainingAmount);
+                npo.transfer(amount);
+                emit Donated(npo, amount);
             }
         }
     }
 
     function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
         require(npoRatios[_npo] > 0);
-        uint256 totalContractBalance = address(this).balance;
-        uint256 amountForNPO = totalContractBalance.sub(totalContractBalance.mul(makerFee).div(feeDivider));
+        uint256 amountForNPO = address(this).balance.sub(address(this).balance.mul(makerFee).div(feeDivider));
         uint8 ratio = npoRatios[_npo];
         return amountForNPO.mul(ratio).div(sumRatio);
     }
