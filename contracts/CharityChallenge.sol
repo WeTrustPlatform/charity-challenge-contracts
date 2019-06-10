@@ -44,6 +44,7 @@ contract CharityChallenge {
 
     uint256 public challengeEndTime;
 
+    // For a fee of 10.5%, pass 1050
     uint256 public makerFee;
 
     uint256 public challengeSafetyHatchTime1;
@@ -62,6 +63,10 @@ contract CharityChallenge {
     mapping(address => uint256) public donorBalances;
 
     uint256 public donorCount;
+
+    // We use a divider of 10000 instead of 100 to have more granularity for
+    // the maker fee
+    uint256 constant feeDivider = 10000;
 
     bool private mReentrancyLock = false;
     modifier nonReentrant() {
@@ -85,7 +90,7 @@ contract CharityChallenge {
     ) public
     {
         require(_npoAddresses.length == _ratios.length);
-        require(makerFee < 10000);
+        require(makerFee < feeDivider);
         uint length = _npoAddresses.length;
         for (uint i = 0; i < length; i++) {
             address payable npo = _npoAddresses[i];
@@ -144,7 +149,7 @@ contract CharityChallenge {
                 uint length = npoAddresses.length;
                 uint256 donatedAmount = 0;
                 if (makerFee > 0) {
-                    uint256 amount = totalContractBalance.mul(makerFee).div(10000);
+                    uint256 amount = totalContractBalance.mul(makerFee).div(feeDivider);
                     donatedAmount = donatedAmount.add(amount);
                     contractOwner.transfer(amount);
                     emit Fee(contractOwner, amount);
@@ -170,7 +175,7 @@ contract CharityChallenge {
     function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
         require(npoRatios[_npo] > 0);
         uint256 totalContractBalance = address(this).balance;
-        uint256 amountForNPO = totalContractBalance.sub(totalContractBalance.mul(makerFee).div(10000));
+        uint256 amountForNPO = totalContractBalance.sub(totalContractBalance.mul(makerFee).div(feeDivider));
         uint8 ratio = npoRatios[_npo];
         return amountForNPO.mul(ratio).div(sumRatio);
     }
