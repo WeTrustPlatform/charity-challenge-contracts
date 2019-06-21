@@ -19,7 +19,7 @@ contract CharityChallenge {
 
     event SafetyHatchClaimed(address indexed claimer, uint256 value);
 
-    string public constant VERSION = "0.4.0";
+    string public constant VERSION = "0.4.1";
 
     address payable public contractOwner;
 
