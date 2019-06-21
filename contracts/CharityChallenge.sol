@@ -30,6 +30,8 @@ contract CharityChallenge {
 
     address payable[] public npoAddresses;
 
+    uint8 public npoLength;
+
     address public marketAddress;
 
     bool public unlockOnNo;
@@ -95,8 +97,8 @@ contract CharityChallenge {
     {
         require(_npoAddresses.length == _ratios.length);
         require(makerFee < feeDivider);
-        uint length = _npoAddresses.length;
-        for (uint i = 0; i < length; i++) {
+        npoLength = uint8(_npoAddresses.length);
+        for (uint8 i = 0; i < npoLength; i++) {
             address payable npo = _npoAddresses[i];
             npoAddresses.push(npo);
             require(_ratios[i] > 0, "Ratio must be a positive number");

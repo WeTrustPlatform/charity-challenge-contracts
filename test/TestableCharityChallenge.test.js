@@ -771,6 +771,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal(CHAINSAFE_NPO_ADDRESS, await charityChallengeContract.npoAddresses(1))
     assert.equal(2, await charityChallengeContract.npoRatios(RAINFOREST_NPO_ADDRESS))
     assert.equal(1, await charityChallengeContract.npoRatios(CHAINSAFE_NPO_ADDRESS))
+    assert.equal(2, await charityChallengeContract.npoLength())
 
     // should allow donors to donate multiple-npo contract
     await charityChallengeContract.sendTransaction(
