@@ -11,6 +11,8 @@ contract CharityChallenge {
 
     event Donated(address indexed npo, uint256 value);
 
+    event Failed();
+
     event Fee(address indexed maker, uint256 value);
 
     event Claimed(address indexed claimer, uint256 value);
@@ -163,6 +165,8 @@ contract CharityChallenge {
                 address payable npo = npoAddresses[length - 1];
                 npo.transfer(amount);
                 emit Donated(npo, amount);
+            } else {
+                emit Failed();
             }
         }
     }
@@ -196,7 +200,7 @@ contract CharityChallenge {
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
-    function checkRealitio() private view returns (bool happened, bool errored) {
+    function checkRealitio() public view returns (bool happened, bool errored) {
         if (realityCheck.isFinalized(questionId)) {
             bytes32 answer = realityCheck.getFinalAnswer(questionId);
             if (answer == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
