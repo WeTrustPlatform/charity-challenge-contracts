@@ -297,7 +297,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal(donatedAmount, 3)
   })
 
-  it('should send money to npo address if augur market is NO', async () => {
+  it('should send money to npo address if realitio market is NO', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
     charityChallengeContract = await newSingleNPOChallengeOption2Contract(
       CONTRACT_OWNER,
@@ -636,7 +636,8 @@ contract('TestableCharityChallenge', (accounts) => {
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
-      await charityChallengeContract.finalize({ from: DONOR_B })
+      const res = await charityChallengeContract.finalize({ from: DONOR_B })
+      assert.equal(res.logs[0].event, 'Failed')
 
       // perform test
       const result = await charityChallengeContract.claim({ from: DONOR_A })
@@ -789,10 +790,6 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('1.66', expectedChainSafeAmount.toString().substring(0, 4));
 
     await utils.assertRevert(charityChallengeContract.getExpectedDonationAmount(CONTRACT_OWNER))
-
-    // should donate correct amount to ratios
-    const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    const CHAINSAFE_NPO_INITIAL_BALANCE = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
 
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
