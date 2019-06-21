@@ -858,8 +858,8 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('1000000000000000000', result.logs[0].args[1].toString())
     assert.equal('2666666666666666666', result.logs[1].args[1].toString())
     assert.equal('1333333333333333334', result.logs[2].args[1].toString())
-	})
-	
+  })
+  
   it('should persist the contributedAmount independently of the balance', async () => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
@@ -878,10 +878,10 @@ contract('TestableCharityChallenge', (accounts) => {
       { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
 
     var balance = await web3.eth.getBalance(charityChallengeContract.address)
-		assert.equal('5000000000000000000', balance.toString())
-		
-		var contributed = await charityChallengeContract.contributedAmount()
-		assert.equal('5000000000000000000', contributed.toString())
+    assert.equal('5000000000000000000', balance.toString())
+    
+    var contributed = await charityChallengeContract.contributedAmount()
+    assert.equal('5000000000000000000', contributed.toString())
 
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
@@ -892,9 +892,9 @@ contract('TestableCharityChallenge', (accounts) => {
     await charityChallengeContract.finalize({ from: DONOR_A })
 
     var balance = await web3.eth.getBalance(charityChallengeContract.address)
-		assert.equal('0', balance.toString())
-		
-		var contributed = await charityChallengeContract.contributedAmount()
-		assert.equal('5000000000000000000', contributed.toString())
-	})
+    assert.equal('0', balance.toString())
+    
+    var contributed = await charityChallengeContract.contributedAmount()
+    assert.equal('5000000000000000000', contributed.toString())
+  })
 })
