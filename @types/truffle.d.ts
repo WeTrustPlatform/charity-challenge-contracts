@@ -25,7 +25,7 @@ interface Artifacts {
 
   require(name: 'TestableCharityChallenge.sol'): Contract<TestableCharityChallenge>
 
-  require(name: 'MarketMock.sol'): Contract<MarketMock>;
+  require(name: 'RealityCheckMock.sol'): Contract<RealityCheckMock>;
 }
 
 interface Web3 {

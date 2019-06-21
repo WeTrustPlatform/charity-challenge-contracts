@@ -1,18 +1,23 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
-import "./IMarket.sol";
+import "./IRealityCheck.sol";
+import "./SafeMath.sol";
 
 contract CharityChallenge {
+    using SafeMath for uint256;
+    using SafeMath for uint8;
 
     event Received(address indexed sender, uint256 value);
 
     event Donated(address indexed npo, uint256 value);
 
+    event Fee(address indexed maker, uint256 value);
+
     event Claimed(address indexed claimer, uint256 value);
 
     event SafetyHatchClaimed(address indexed claimer, uint256 value);
 
-    string public constant VERSION = "0.3.0";
+    string public constant VERSION = "0.4.0";
 
     address payable public contractOwner;
 
@@ -27,9 +32,20 @@ contract CharityChallenge {
 
     bool public unlockOnNo;
 
-    IMarket market;
+    IRealityCheck realityCheck;
+
+    string public question;
+
+    address public arbitrator;
+
+    uint256 public timeout;
+
+    bytes32 public questionId;
 
     uint256 public challengeEndTime;
+
+    // For a fee of 10.5%, pass 1050
+    uint256 public makerFee;
 
     uint256 public challengeSafetyHatchTime1;
 
@@ -48,6 +64,10 @@ contract CharityChallenge {
 
     uint256 public donorCount;
 
+    // We use a divider of 10000 instead of 100 to have more granularity for
+    // the maker fee
+    uint256 constant feeDivider = 10000;
+
     bool private mReentrancyLock = false;
     modifier nonReentrant() {
         require(!mReentrancyLock);
@@ -61,10 +81,16 @@ contract CharityChallenge {
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
         address _marketAddress,
+        string memory _question,
+        address _arbitrator,
+        uint256 _timeout,
+        uint256 _challengeEndTime,
+        uint256 _makerFee,
         bool _unlockOnNo
     ) public
     {
         require(_npoAddresses.length == _ratios.length);
+        require(makerFee < feeDivider);
         uint length = _npoAddresses.length;
         for (uint i = 0; i < length; i++) {
             address payable npo = _npoAddresses[i];
@@ -75,9 +101,14 @@ contract CharityChallenge {
         }
         contractOwner = _contractOwner;
         marketAddress = _marketAddress;
-        market = IMarket(_marketAddress);
+        realityCheck = IRealityCheck(_marketAddress);
+        question = _question;
+        arbitrator = _arbitrator;
+        timeout = _timeout;
+        challengeEndTime = _challengeEndTime;
+        makerFee = _makerFee;
+        questionId = realityCheck.askQuestion(0, question, arbitrator, uint32(timeout), uint32(challengeEndTime), 0);
         unlockOnNo = _unlockOnNo;
-        challengeEndTime = market.getEndTime();
         challengeSafetyHatchTime1 = challengeEndTime + 26 weeks;
         challengeSafetyHatchTime2 = challengeSafetyHatchTime1 + 52 weeks;
         isEventFinalized = false;
@@ -110,36 +141,37 @@ contract CharityChallenge {
 
     function doFinalize() private {
         bool hasError;
-        (hasChallengeAccomplished, hasError) = checkAugur();
+        (hasChallengeAccomplished, hasError) = checkRealitio();
         if (!hasError) {
             isEventFinalized = true;
             if (hasChallengeAccomplished) {
-                uint256 totalContractBalance = address(this).balance;
                 uint length = npoAddresses.length;
-                uint256 donatedAmount = 0;
+                if (makerFee > 0) {
+                    uint256 amount = address(this).balance.mul(makerFee).div(feeDivider);
+                    contractOwner.transfer(amount);
+                    emit Fee(contractOwner, amount);
+                }
                 for (uint i = 0; i < length - 1; i++) {
                     address payable npo = npoAddresses[i];
                     uint8 ratio = npoRatios[npo];
-                    uint256 amount = totalContractBalance * ratio / sumRatio;
-                    donatedAmount += amount;
+                    uint256 amount = address(this).balance.mul(ratio).div(sumRatio);
                     npo.transfer(amount);
                     emit Donated(npo, amount);
                 }
                 // Don't want to keep any amount in the contract
-                uint256 remainingAmount = totalContractBalance - donatedAmount;
+                uint256 amount = address(this).balance;
                 address payable npo = npoAddresses[length - 1];
-                npo.transfer(remainingAmount);
-                emit Donated(npo, remainingAmount);
+                npo.transfer(amount);
+                emit Donated(npo, amount);
             }
         }
     }
 
     function getExpectedDonationAmount(address payable _npo) view external returns (uint256) {
         require(npoRatios[_npo] > 0);
-        uint256 totalContractBalance = address(this).balance;
+        uint256 amountForNPO = address(this).balance.sub(address(this).balance.mul(makerFee).div(feeDivider));
         uint8 ratio = npoRatios[_npo];
-        uint256 amount = totalContractBalance * ratio / sumRatio;
-        return amount;
+        return amountForNPO.mul(ratio).div(sumRatio);
     }
 
     function claim() nonReentrant external {
@@ -164,19 +196,18 @@ contract CharityChallenge {
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
-    function checkAugur() private view returns (bool happened, bool errored) {
-        if (market.isFinalized()) {
-            if (market.isInvalid()) {
+    function checkRealitio() private view returns (bool happened, bool errored) {
+        if (realityCheck.isFinalized(questionId)) {
+            bytes32 answer = realityCheck.getFinalAnswer(questionId);
+            if (answer == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
                 // Treat 'invalid' outcome as 'no'
                 // because 'invalid' is one of the valid outcomes
                 return (false, false);
             } else {
-                uint256 no = market.getWinningPayoutNumerator(0);
-                uint256 yes = market.getWinningPayoutNumerator(1);
                 if (unlockOnNo) {
-                    return (yes < no, false);
+                    return (answer == 0x0000000000000000000000000000000000000000000000000000000000000000, false);
                 }
-                return (yes > no, false);
+                return (answer == 0x0000000000000000000000000000000000000000000000000000000000000001, false);
             }
         } else {
             return (false, true);

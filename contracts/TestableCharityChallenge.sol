@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "./CharityChallenge.sol";
 
@@ -8,12 +8,22 @@ contract TestableCharityChallenge is CharityChallenge {
         address payable[] memory _npoAddresses,
         uint8[] memory _ratios,
         address _marketAddress,
+        string memory _question,
+        address _arbitrator,
+        uint256 _timeout,
+        uint256 _challengeEndTime,
+        uint256 _makerFee,
         bool _unlockOnNo
     ) CharityChallenge(
         _contractOwner,
         _npoAddresses,
         _ratios,
         _marketAddress,
+        _question,
+        _arbitrator,
+        _timeout,
+        _challengeEndTime,
+        _makerFee,
         _unlockOnNo
     ) public {}
 
