@@ -860,7 +860,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('1333333333333333334', result.logs[2].args[1].toString())
 	})
 	
-	it('should persist the contributedAmount independently of the balance', async () => {
+  it('should persist the contributedAmount independently of the balance', async () => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       [RAINFOREST_NPO_ADDRESS],
