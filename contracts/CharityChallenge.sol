@@ -66,6 +66,8 @@ contract CharityChallenge {
 
     uint256 public donorCount;
 
+    uint256 public contributedAmount;
+
     // We use a divider of 10000 instead of 100 to have more granularity for
     // the maker fee
     uint256 constant feeDivider = 10000;
@@ -124,6 +126,7 @@ contract CharityChallenge {
             donorCount++;
         }
         donorBalances[msg.sender] += msg.value;
+        contributedAmount += msg.value;
         emit Received(msg.sender, msg.value);
     }
 
