@@ -297,7 +297,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal(donatedAmount, 3)
   })
 
-  it('should send money to npo address if augur market is NO', async () => {
+  it('should send money to npo address if realitio market is NO', async () => {
     const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
     charityChallengeContract = await newSingleNPOChallengeOption2Contract(
       CONTRACT_OWNER,
@@ -636,7 +636,8 @@ contract('TestableCharityChallenge', (accounts) => {
       await marketMock.setFinalized(QID, true)
       // await marketMock.setInvalid(false)
       await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000000')
-      await charityChallengeContract.finalize({ from: DONOR_B })
+      const res = await charityChallengeContract.finalize({ from: DONOR_B })
+      assert.equal(res.logs[0].event, 'Failed')
 
       // perform test
       const result = await charityChallengeContract.claim({ from: DONOR_A })
@@ -770,6 +771,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal(CHAINSAFE_NPO_ADDRESS, await charityChallengeContract.npoAddresses(1))
     assert.equal(2, await charityChallengeContract.npoRatios(RAINFOREST_NPO_ADDRESS))
     assert.equal(1, await charityChallengeContract.npoRatios(CHAINSAFE_NPO_ADDRESS))
+    assert.equal(2, await charityChallengeContract.npoLength())
 
     // should allow donors to donate multiple-npo contract
     await charityChallengeContract.sendTransaction(
@@ -790,10 +792,6 @@ contract('TestableCharityChallenge', (accounts) => {
 
     await utils.assertRevert(charityChallengeContract.getExpectedDonationAmount(CONTRACT_OWNER))
 
-    // should donate correct amount to ratios
-    const RAINFOREST_NPO_INITIAL_BALANCE = await web3.eth.getBalance(RAINFOREST_NPO_ADDRESS)
-    const CHAINSAFE_NPO_INITIAL_BALANCE = await web3.eth.getBalance(CHAINSAFE_NPO_ADDRESS)
-
     await charityChallengeContract.setChallengeEndTime(
       CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
 
@@ -808,7 +806,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('1666666666666666667', result.logs[1].args[1].toString())
   })
 
-  it('should create donate the maker fee properly', async () => {
+  it('should donate the maker fee properly', async () => {
     charityChallengeContract = await TestableCharityChallenge.new(
       CONTRACT_OWNER,
       [RAINFOREST_NPO_ADDRESS, CHAINSAFE_NPO_ADDRESS],
@@ -862,12 +860,42 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal('2666666666666666666', result.logs[1].args[1].toString())
     assert.equal('1333333333333333334', result.logs[2].args[1].toString())
   })
+  
+  it('should persist the contributedAmount independently of the balance', async () => {
+    charityChallengeContract = await TestableCharityChallenge.new(
+      CONTRACT_OWNER,
+      [RAINFOREST_NPO_ADDRESS],
+      [1],
+      marketMock.address,
+      "question",
+      ARBITRATOR_ADDRESS,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      CHALLENGE_END_TIME_IN_THE_FUTURE,
+      0, // 0%
+      false
+    )
 
-  // it('should allow donors to donate multiple-npo contract', async () => {
-    
-  // })
+    await charityChallengeContract.sendTransaction(
+      { value: web3.utils.toWei('5', 'ether'), from: DONOR_A })
 
-  // it('should donate correct amount to ratios', async () => {
+    var balance = await web3.eth.getBalance(charityChallengeContract.address)
+    assert.equal('5000000000000000000', balance.toString())
     
-  // })
+    var contributed = await charityChallengeContract.contributedAmount()
+    assert.equal('5000000000000000000', contributed.toString())
+
+    await charityChallengeContract.setChallengeEndTime(
+      CHALLENGE_END_TIME_IN_THE_PAST, { from: CONTRACT_OWNER })
+
+    const QID = await charityChallengeContract.questionId()
+    await marketMock.setFinalized(QID, true)
+    await marketMock.setFinalAnswer(QID, '0x0000000000000000000000000000000000000000000000000000000000000001')
+    await charityChallengeContract.finalize({ from: DONOR_A })
+
+    var balance = await web3.eth.getBalance(charityChallengeContract.address)
+    assert.equal('0', balance.toString())
+    
+    var contributed = await charityChallengeContract.contributedAmount()
+    assert.equal('5000000000000000000', contributed.toString())
+  })
 })

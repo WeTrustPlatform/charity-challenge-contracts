@@ -11,13 +11,15 @@ contract CharityChallenge {
 
     event Donated(address indexed npo, uint256 value);
 
+    event Failed();
+
     event Fee(address indexed maker, uint256 value);
 
     event Claimed(address indexed claimer, uint256 value);
 
     event SafetyHatchClaimed(address indexed claimer, uint256 value);
 
-    string public constant VERSION = "0.4.0";
+    string public constant VERSION = "0.4.1";
 
     address payable public contractOwner;
 
@@ -27,6 +29,8 @@ contract CharityChallenge {
     uint8 sumRatio;
 
     address payable[] public npoAddresses;
+
+    uint8 public npoLength;
 
     address public marketAddress;
 
@@ -64,6 +68,8 @@ contract CharityChallenge {
 
     uint256 public donorCount;
 
+    uint256 public contributedAmount;
+
     // We use a divider of 10000 instead of 100 to have more granularity for
     // the maker fee
     uint256 constant feeDivider = 10000;
@@ -91,8 +97,8 @@ contract CharityChallenge {
     {
         require(_npoAddresses.length == _ratios.length);
         require(makerFee < feeDivider);
-        uint length = _npoAddresses.length;
-        for (uint i = 0; i < length; i++) {
+        npoLength = uint8(_npoAddresses.length);
+        for (uint8 i = 0; i < npoLength; i++) {
             address payable npo = _npoAddresses[i];
             npoAddresses.push(npo);
             require(_ratios[i] > 0, "Ratio must be a positive number");
@@ -122,6 +128,7 @@ contract CharityChallenge {
             donorCount++;
         }
         donorBalances[msg.sender] += msg.value;
+        contributedAmount += msg.value;
         emit Received(msg.sender, msg.value);
     }
 
@@ -163,6 +170,8 @@ contract CharityChallenge {
                 address payable npo = npoAddresses[length - 1];
                 npo.transfer(amount);
                 emit Donated(npo, amount);
+            } else {
+                emit Failed();
             }
         }
     }
@@ -196,7 +205,7 @@ contract CharityChallenge {
         emit SafetyHatchClaimed(contractOwner, totalContractBalance);
     }
 
-    function checkRealitio() private view returns (bool happened, bool errored) {
+    function checkRealitio() public view returns (bool happened, bool errored) {
         if (realityCheck.isFinalized(questionId)) {
             bytes32 answer = realityCheck.getFinalAnswer(questionId);
             if (answer == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
