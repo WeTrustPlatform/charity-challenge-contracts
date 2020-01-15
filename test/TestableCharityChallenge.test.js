@@ -143,7 +143,7 @@ contract('TestableCharityChallenge', (accounts) => {
     assert.equal(result.logs[0].event, 'Received')
   })
 
-  it('should throw if DONOR_A sends money into contract after challenge end time', async () => {
+  it('should accept that DONOR_A sends money into contract after challenge end time', async () => {
     charityChallengeContract = await newSingleNPOChallengeContract(
       CONTRACT_OWNER,
       RAINFOREST_NPO_ADDRESS,
@@ -153,9 +153,11 @@ contract('TestableCharityChallenge', (accounts) => {
       CHALLENGE_END_TIME_IN_THE_PAST,
       CHALLENGE_END_TIME_IN_THE_PAST)
 
-    await utils.assertRevert(charityChallengeContract.sendTransaction(
+    const result = await charityChallengeContract.sendTransaction(
       { value: web3.utils.toWei('1', 'ether'), from: DONOR_A }
-    ))
+    )
+
+    assert.equal(result.logs[0].event, 'Received')
   })
 
   it('should throw if DONOR_A calls finalize before challenge end time', async () => {
