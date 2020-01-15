@@ -122,7 +122,6 @@ contract CharityChallenge {
     }
 
     function() external payable {
-        require(now <= challengeEndTime);
         require(msg.value > 0);
         if (donorBalances[msg.sender] == 0 && msg.value > 0) {
             donorCount++;
